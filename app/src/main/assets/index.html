@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>JGitUI</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="description" content="Splash + main page of JGitUI application.">
+</head>
+<body>
+  <header id="menu-bar">
+    <!--suppress PreferNativeElement -->
+    <button id="menu-bar-back" title="back button" type="button">&#x1F870;</button>
+    <button id="menu-bar-hamburger" title="menu hamburger" type="button">&#x2630;</button>
+    <button id="menu-bar-search" title="search button" type="button">&#x2315;</button>
+    <button id="menu-bar-title" title="menu title" type="button">A Long Example Repo Name To Trigger Overflow</button>
+
+    <ul id="menu-sidebar">
+      <li id="sidebar-close"><span>Close Menu</span></li>
+      <li id="init-btn"><span>Init</span></li>
+      <li id="new-repo-btn"><span>New Repo</span></li>
+      <li id="import-btn"><span>Import</span></li>
+      <li id="settings-btn"><span>Settings</span></li>
+      <!--
+        <li><span>New Branch</span></li>
+        <li><span>Pull</span></li>
+        <li><span>Push</span></li>
+        <li><span>Add all to staging</span></li>
+        <li><span>Commit</span></li>
+        <li><span>Reset (HARD)</span></li>
+        <li><span>Merge</span></li>
+        <li><span>Fetch</span></li>
+        <li><span>Rebase</span></li>
+        <li><span>Cherry Pick</span></li>
+        <li><span>Diff</span></li>
+        <li><span>New File</span></li>
+        <li><span>New Directory</span></li>
+        <li><span>Add Remote</span></li>
+        <li><span>Remove Remote</span></li>
+        <li><span>Delete</span></li>
+        <li><span>Raw Config</span></li>
+        <li><span>Config</span></li>
+      -->
+    </ul>
+  </header>
+
+  <input id="menu-search" type="search" title="search input" placeholder="search">
+
+  <div id="splash">
+    <span>This application requires the following permissions to function properly</span>
+
+    <ul id="permissions-list">
+      <li>Access all files <span id="storage-permission-state" class="permission-denied"></span></li>
+    </ul>
+
+    <span>
+      <button type="button" id="update-storage-permission">Storage</button>
+    </span>
+  </div>
+
+  <div id="main-page">
+    <ul>
+      <li class="repo-list-item">
+        <a href="void(0)" class="repo-list-name">A Long Example Name To Cause Overflow To Start Early And Last A Moment</a>
+      </li>
+    </ul>
+
+    <div id="container"></div>
+  </div>
+
+  <footer id="footer">
+    <textarea id="status" aria-label="Status output" disabled></textarea>
+  </footer>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="./script.js"></script>
+</body>
+</html>

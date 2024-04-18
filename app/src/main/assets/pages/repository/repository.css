@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 360px;
+  width: 100vw;
+  min-width: 160px;
+  background-color: black;
+  color: white;
+}
+
+#file-list {
+  list-style-type: none;
+}
+
+.file-list-item {
+  list-style-type: none;
+}
+
+#menu-bar {
+  display: none;
+}
+
+#status {
+  font-size: 1rem;
+  padding: 0.25rem;
+  width: 100vw;
+  height: 4rem;
+  resize: none;
+}
+
+footer {
+  background-color: black;
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+  margin-top: 0;
+  font-weight: bold;
+  padding: 0.75rem 0;
+  justify-content: center;
+}

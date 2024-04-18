@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>JGitUI</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Splash + main page of JGitUI application.">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css" data-noprefix />
+  <link rel="stylesheet" href="./fileview.css">
+</head>
+<body>
+  <header id="menu-bar">
+    <!--suppress PreferNativeElement -->
+    <button id="menu-bar-back" title="back button" type="button">&#x1F870;</button>
+    <button id="menu-bar-hamburger" title="menu hamburger" type="button">&#x2630;</button>
+    <button id="menu-bar-search" title="search button" type="button">&#x2315;</button>
+    <button id="menu-bar-title" title="menu title" type="button">A Long Example Repo Name To Trigger Overflow</button>
+
+    <ul id="menu-sidebar">
+      <li id="sidebar-close"><span>Close Menu</span></li>
+      <li id="add-btn"><span>Clone</span></li>
+      <li id="import-btn"><span>Import</span></li>
+      <li id="settings-btn"><span>Settings</span></li>
+    </ul>
+  </header>
+
+  <input id="menu-search" type="search" title="search input" placeholder="search">
+
+  <pre id="file-view-container" class="line-numbers"><code></code></pre>
+
+  <!--
+    <div class="file-view-container">
+      <div class="file-view-lines"></div>
+      <textarea class="file-view-content" title="file view" disabled></textarea>
+    </div>
+  -->
+
+  <footer id="footer">
+    <textarea id="status" aria-label="Status output" disabled></textarea>
+  </footer>
+
+  <script src="fileview.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.js"></script>
+</body>
+</html>
