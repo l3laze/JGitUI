@@ -2,48 +2,33 @@
 
 /* global Prism */
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loc = window.location.href
+/* eslint-disable-next-line no-unused-vars */
+function isAndroidOS () {
+  return navigator.userAgent.toLowerCase().indexOf('android') > -1 &&
+    typeof window.android !== 'undefined' && typeof window.android.requestPermission !== 'undefined'
+}
 
-  if (loc.indexOf('?') === -1) {
-    throw new Error('No query in URL')
-  }
-
-  const query = loc.split('?')[1]
-
-  if (query.length === 0) {
-    throw new Error('No content in query')
-  }
-
-  const args = query.split('=')
-
-  if ((args.length % 2) !== 0) {
-    throw new Error('Malformed query')
-  }
-
-  const options = {}
-  const possibleOptions = [
-    'file'
-  ]
-
-  console.log(loc, query, args, typeof options)
-
-  for (let i = 0; i < args.length / 2; i += 2) {
-    if (possibleOptions.indexOf(args[i]) !== -1) {
-      options[args[i]] = args[i + 1]
+function openFileview () {
+  if (isAndroidOS() || (window.location.href.indexOf('http://') === 0 || window.location.href.indexOf('127.0.0.1:3000') === 0)) {
+    if (typeof window.Prism !== 'undefined') {
+      console.log('Prism!')
+    } else {
+      console.warn('Failed to load Prism from CDN')
     }
+  } else {
+    console.log('Skipping Prism')
   }
 
-  if (options.file) {
-    const container = document.querySelector('#file-view-container code')
+  const filename = document.getElementById('file-view-container').getAttribute('data-file')
 
-    container.classList.add(`language-${getPrismLanguageCode(options.file.split('.')[1])}`)
+  const container = document.querySelector('#file-view-container code')
 
-    container.textContent = '<style>\ndiv {\n  box-sizing: border-box;\n}\n</style>\n\n<div id="greeting">Hi there.</div>\n\n<script type="text/javascript">\nconst hello = \'world\'\n\nconsole.log(hello)\n</script>'
+  container.classList.add(`language-${getPrismLanguageCode(filename.split('.')[1])}`)
 
-    Prism.highlightElement(container)
-  }
-})
+  container.textContent = '<style>\ndiv {\n  box-sizing: border-box;\n}\n</style>\n\n<div id="greeting">Hi there.</div>\n\n<script type="text/javascript">\nconst hello = \'world\'\n\nconsole.log(hello)\n</script>'
+
+  Prism.highlightElement(container)
+}
 
 function getPrismLanguageCode (extension) {
   /*

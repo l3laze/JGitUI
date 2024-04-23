@@ -1,17 +1,36 @@
 <!DOCTYPE HTML>
 
 <dialog id="new-repo-dialog">
-  <h2>Hello, new repo dialog!</h2>
+  <a id="close-new-repo-dialog" href="javascript:void 0;">&times;</a>
+  <div id="new-repo-dialog-title">
+    <b>New Repository</b>
+  </div>
 
-  <ul>
+  <ul id="new-repo-tab-controls">
     <li class="active">Init</li>
     <li>Clone</li>
     <li>Import</li>
   </ul>
 
-  <main>
-    <div id="init" class="new-repo-tab active">Hello, init!</div>
-    <div id="clone" class="new-repo-tab">Hello, clone!</div>
-    <div id="import" class="new-repo-tab">Hello, import!</div>
-  </main>
+  <form id="repo-tabs">
+    <div>
+      <div id="init" class="new-repo-tab active">
+        <label for="new-repo-init-name">Name</label>
+        <input type="text" id="new-repo-init-name" name="new-repo-init-name">
+
+        <br>
+
+        <label for="new-repo-init-dir">Folder</label>
+        <input type="text" id="new-repo-init-dir" name="new-repo-init-dir">
+      </div>
+
+      <div id="clone" class="new-repo-tab">Hello, clone!</div>
+      <div id="import" class="new-repo-tab">Hello, import!</div>
+    </div>
+
+    <span id="new-repo-dialog-controls">
+      <button type="submit" id="new-repo-dialog-ok">Ok</button>
+      <button type="button" id="new-repo-dialog-cancel">Cancel</button>
+    </span>
+  </form>
 </dialog>

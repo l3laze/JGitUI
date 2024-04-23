@@ -6,6 +6,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="description" content="Splash + main page of JGitUI application.">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" async>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css" data-noprefix async>
 </head>
 <body>
   <header id="menu-bar">
@@ -17,9 +20,7 @@
 
     <ul id="menu-sidebar">
       <li id="sidebar-close"><span>Close Menu</span></li>
-      <li id="init-btn"><span>Init</span></li>
-      <li id="new-repo-btn"><span>New Repo</span></li>
-      <li id="import-btn"><span>Import</span></li>
+      <li id="new-repo-btn"><span>New</span></li>
       <li id="settings-btn"><span>Settings</span></li>
       <!--
         <li><span>New Branch</span></li>
@@ -61,18 +62,16 @@
   <div id="main-page">
     <ul>
       <li class="repo-list-item">
-        <a href="void(0)" class="repo-list-name">A Long Example Name To Cause Overflow To Start Early And Last A Moment</a>
+        <a class="repo-list-name">A Long Example Name To Cause Overflow To Start Early And Last A Moment</a>
       </li>
     </ul>
 
     <div id="container"></div>
   </div>
 
-  <footer id="footer">
-    <textarea id="status" aria-label="Status output" disabled></textarea>
-  </footer>
-
   <link rel="stylesheet" href="style.css">
   <script src="./script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.js" async defer></script>
 </body>
 </html>

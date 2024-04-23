@@ -1,57 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <title>Repository</title>
+<link rel="stylesheet" href="./pages/repository/repository.css">
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<ul id="file-list">
+  <li>
+    <a class="file-list-item">filename.html</a>
+  </li>
+</ul>
 
-  <link rel="stylesheet" href="./../../style.css">
-</head>
-<body>
-  <header id="menu-bar">
-    <!--suppress PreferNativeElement -->
-    <button id="menu-bar-back" title="back button" type="button">&#x1F870;</button>
-    <button id="menu-bar-hamburger" title="menu hamburger" type="button">&#x2630;</button>
-    <button id="menu-bar-search" title="search button" type="button">&#x2315;</button>
-    <button id="menu-bar-title" title="menu title" type="button">Repository Name</button>
-
-    <ul id="menu-sidebar">
-      <li><span>New Branch</span></li>
-      <li><span>Pull</span></li>
-      <li><span>Push</span></li>
-      <li><span>Add all to staging</span></li>
-      <li><span>Commit</span></li>
-      <li><span>Reset (HARD)</span></li>
-      <li><span>Merge</span></li>
-      <li><span>Fetch</span></li>
-      <li><span>Rebase</span></li>
-      <li><span>Cherry Pick</span></li>
-      <li><span>Diff</span></li>
-      <li><span>New File</span></li>
-      <li><span>New Directory</span></li>
-      <li><span>Add Remote</span></li>
-      <li><span>Remove Remote</span></li>
-      <li><span>Delete</span></li>
-      <li><span>Raw Config</span></li>
-      <li><span>Config</span></li>
-    </ul>
-  </header>
-
-  <input id="menu-search" type="search" title="search input" placeholder="search">
-
-  <main>
-    <ul id="file-list">
-      <li>
-        <a class="file-list-item">filename.txt</a>
-      </li>
-    </ul>
-  </main>
-
-  <footer id="footer">
-    <textarea id="status" aria-label="Status output" disabled></textarea>
-  </footer>
-
-  <script src="./repository.js"></script>
-</body>
-</html>
+<script src="./pages/repository/repository.js"></script>

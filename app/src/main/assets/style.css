@@ -17,6 +17,7 @@ body {
   min-width: 160px;
   background-color: black;
   color: white;
+  overflow-x: hidden;
 }
 
 header {
@@ -186,20 +187,12 @@ header button:hover {
   text-decoration: none;
   color: black;
   font-weight: bold;
-}
-
-#status {
-  font-size: 1rem;
-  padding: 0.25rem;
-  width: 100vw;
-  height: 4rem;
-  resize: none;
+  cursor: pointer;
 }
 
 footer {
   background-color: black;
   width: 100vw;
-  position: fixed;
   bottom: 0;
   margin-top: 0;
   font-weight: bold;

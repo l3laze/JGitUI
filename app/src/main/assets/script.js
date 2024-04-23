@@ -1,6 +1,6 @@
 'use strict'
 
-/* global android, XMLHttpRequest */
+/* global android, openRepo, openNewRepoDialog */
 
 class AsyncValue {
   #value
@@ -53,7 +53,6 @@ const perms = {
 
 const splashScreen = document.getElementById('splash')
 const searchBtn = document.getElementById('menu-bar-search')
-const stat = document.getElementById('status')
 const storagePermState = document.getElementById('storage-permission-state')
 const storageBtn = document.getElementById('update-storage-permission')
 
@@ -62,49 +61,35 @@ const storageBtn = document.getElementById('update-storage-permission')
  */
 
 const _con = {
-  log: console.log,
-  error: console.error
+  log: console.log
 }
 
-console.error = function (e) {
-  log(e)
-
-  _con.error.apply(console, arguments)
-}
-
-console.log = function () {
+console.log = function (...args) {
   const argList = []
 
-  for (const value of arguments) {
-    argList.push(value.constructor.name === 'Object'
-      ? JSON.stringify(value)
-      : value.toString())
+  for (const value of args) {
+    argList.push(typeof value === 'undefined'
+      ? 'undefined'
+      : value.constructor.name === 'Object'
+        ? JSON.stringify(value)
+        : value.toString())
   }
-
-  log(argList.join(' '))
 
   _con.log.apply(console, arguments)
 }
 
 /* eslint-disable-next-line no-unused-vars */
 function isAndroidOS () {
-  return navigator.userAgent.toLowerCase().indexOf('android') > -1
+  return navigator.userAgent.toLowerCase().indexOf('android') > -1 &&
+    typeof window.android !== 'undefined' && typeof window.android.requestPermission !== 'undefined'
 }
 
-window.addEventListener('DOMContentLoaded', async function () {
-  if (isAndroidOS() || (window.location.href.indexOf('http://') === 0 || window.location.href.indexOf('127.0.0.1:3000') === 0)) {
-    if (typeof window.Prism !== 'undefined') {
-      console.log('Prism!')
-    } else {
-      console.warn('Failed to load Prism from CDN')
-    }
-  } else {
-    console.log('Skipping Prism')
-  }
+const container = document.querySelector('#main-page #container')
 
+window.addEventListener('DOMContentLoaded', async function () {
   const query = window.location.href.split('?')[1] || ''
 
-  console.log(query)
+  console.log(`query = "${query}"`)
 
   if (query.length > 0) {
     const args = query.split('=')
@@ -134,8 +119,30 @@ window.addEventListener('DOMContentLoaded', async function () {
 
   Array.from(document.querySelectorAll('.repo-list-name'))
     .forEach((r) => {
-      r.href = `./pages/repository/repository.html?repo=${r.innerText}`
+      r.addEventListener('click', async (event) => {
+        if (!event.target.getAttribute('data-has-loaded')) {
+          event.target.setAttribute('data-has-loaded', true)
+
+          await fetchContent(event, './pages/repository/repository.html', container)
+        } else {
+          openRepo(event.target.textContent)
+        }
+      })
     })
+
+  document.querySelector('.repo-list-item .repo-list-name').click()
+})
+
+document.getElementById('new-repo-btn').addEventListener('click', async (event) => {
+  if (!event.currentTarget.getAttribute('data-has-loaded')) {
+    event.currentTarget.setAttribute('data-has-loaded', true)
+
+    await fetchContent(event, './pages/new-repo/new-repo.html', container)
+  }
+
+  setTimeout(() => {
+    window.openNewRepoDialog()
+  }, 50)
 })
 
 function updatePerms (perm, state = false) {
@@ -147,14 +154,6 @@ function updatePerms (perm, state = false) {
   } else {
     toggleDisplay('menu-bar')
   }
-}
-
-function log (message) {
-  if (stat.value !== '') {
-    stat.value += '\n'
-  }
-
-  stat.value += message
 }
 
 function sleep (ms) {
@@ -206,82 +205,76 @@ searchBtn.addEventListener('click', function () {
   toggleDisplay('menu-search')
 })
 
-document.getElementById('init-btn').addEventListener('click', () => {
-  android.init('/example/path')
-})
+function loadStyle (files, elements) {
+  for (let i = 0; i < files.length; i++) {
+    const fileref = document.createElement('link')
 
-function loadCSS (styleFile) {
-  const fileref = document.createElement('link')
+    fileref.rel = 'stylesheet'
+    fileref.type = 'text/css'
+    fileref.href = files[i]
 
-  fileref.rel = 'stylesheet'
-  fileref.type = 'text/css'
-  fileref.href = styleFile
+    elements[i].parentElement.removeChild(elements[i])
 
-  document.getElementsByTagName('head')[0].appendChild(fileref)
+    document.querySelectorAll('link')[0].appendChild(fileref)
+  }
 }
 
-function loadScript (scriptFile) {
-  const script = document.createElement('script')
+function loadScript (files, elements) {
+  for (let i = 0; i < files.length; i++) {
+    const script = document.createElement('script')
 
-  script.type = 'text/javascript'
-  script.async = true
-  script.src = scriptFile
+    script.type = 'text/javascript'
+    script.async = true
+    script.src = files[i]
 
-  const s = document.getElementsByTagName('script')[0]
+    elements[i].parentElement.removeChild(elements[i])
 
-  s.parentNode.insertBefore(script, s)
+    const s = document.getElementsByTagName('script')[0]
+
+    s.parentNode.insertBefore(script, s)
+  }
 }
 
-async function loadContentFetch (event, content, element) {
+async function fetchContent (event, url, element) {
   event.preventDefault()
 
   try {
-    const response = await fetch(content.html)
+    const response = await fetch(url)
 
     const html = await response.text()
 
-    loadCSS(content.css)
-
     element.innerHTML = html
-    loadScript(content.js)
+
+    const styleElements = element.querySelectorAll('link')
+
+    const scriptElements = element.querySelectorAll('script')
+
+    // console.log(`styles: ${styles.join(' ')}\nscripts: ${scripts}`)
+
+    loadStyle(Array.from(styleElements).map((e) => e.href), styleElements)
+    loadScript(Array.from(scriptElements).map((e) => e.src).filter((e) => e.indexOf('vscode') === -1), scriptElements)
   } catch (err) {
     console.warn(err)
   }
 }
 
-function loadContentXHR (event, content, element) {
-  event.preventDefault()
+// function loadContentXHR (event, content, element) {
+//   event.preventDefault()
 
-  const xhr = new XMLHttpRequest()
+//   const xhr = new XMLHttpRequest()
 
-  xhr.onreadystatechange = function (e) {
-    if (xhr.readyState === 4 && xhr.status === 200) {
-      element.innerHTML = xhr.responseText
+//   xhr.onreadystatechange = function (e) {
+//     if (xhr.readyState === 4 && xhr.status === 200) {
+//       element.innerHTML = xhr.responseText
 
-      executeScript(element)
-    }
-  }
+//       executeScript(element)
+//     }
+//   }
 
-  xhr.open('GET', content.html, true)
-  xhr.setRequestHeader('Content-type', 'text/html')
-  xhr.send()
-}
-
-document.getElementById('new-repo-btn').addEventListener('click', async (event) => {
-  const container = document.querySelector('#main-page #container')
-
-  if (!event.currentTarget.getAttribute('data-has-loaded')) {
-    event.currentTarget.setAttribute('data-has-loaded', true)
-
-    await loadContentFetch(event, {
-      html: './pages/new-repo/new-repo.html',
-      css: './pages/new-repo/new-repo.css',
-      js: './pages/new-repo/new-repo.js'
-    }, container)
-  } else {
-    newRepo()
-  }
-})
+//   xhr.open('GET', content.html, true)
+//   xhr.setRequestHeader('Content-type', 'text/html')
+//   xhr.send()
+// }
 
 /* eslint-disable-next-line no-unused-vars */
 const fs = {
