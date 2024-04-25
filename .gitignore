@@ -21,3 +21,5 @@ render.experimental
 *.keystore
 google-services.json
 *.hprof
+
+.idea/vcs.xml
