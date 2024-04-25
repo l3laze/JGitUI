@@ -14,11 +14,11 @@
       url: './spa-test/three.html',
       container: '#spa-container',
       element: 'div.tab:nth-of-type(3)',
+      self: '#spa-test-three',
       displayAs: 'block',
       after: () => {
         testThree()
-      },
-      globals: ['testThree']
+      }
     }
 
     await loadContent(event, options)

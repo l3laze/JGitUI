@@ -2,40 +2,52 @@
 
 /* global testOne */
 
-function loadStyle (files, elements) {
+function loadStyle (files) {
+  const existing = Array.from(document.head.querySelectorAll('link [rel=stylesheet]'))
+    .map((l) => l.href)
+
   for (let i = 0; i < files.length; i++) {
-    const fileref = document.createElement('link')
+    if (existing.includes(files[i])) {
+      continue
+    }
 
-    fileref.rel = 'stylesheet'
-    fileref.type = 'text/css'
-    fileref.href = files[i]
+    const linkEl = document.createElement('link')
 
-    elements[i].parentElement.removeChild(elements[i])
+    linkEl.rel = 'stylesheet'
+    linkEl.type = 'text/css'
+    linkEl.href = files[i]
 
-    document.querySelectorAll('link')[0].appendChild(fileref)
+    document.querySelectorAll('link')[0].appendChild(linkEl)
+
+    existing.push(files[i])
   }
 }
 
-function loadScript (files, elements) {
+async function loadScript (files, after) {
+  const existing = Array.from(document.querySelectorAll('#script-container > script'))
+    .map((s) => s.src)
+
   for (let i = 0; i < files.length; i++) {
+    if (existing.includes(files[i])) {
+      continue
+    }
+
     const script = document.createElement('script')
 
-    document.body.append(script)
+    document.getElementById('script-container').append(script)
+
+    if (typeof after !== 'undefined') {
+      script.addEventListener('load', () => {
+        after()
+      })
+    }
 
     script.type = 'text/javascript'
-    script.async = true
+    script.async = false
     script.src = files[i]
 
-    elements[i].parentElement.removeChild(elements[i])
+    existing.push(files[i])
   }
-}
-
-async function sleep (ms) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, ms)
-  })
 }
 
 async function fetchContent (url, element, after) {
@@ -46,13 +58,25 @@ async function fetchContent (url, element, after) {
 
     const styleElements = element.querySelectorAll('link')
 
+    const styleFiles = Array.from(styleElements).map((e) => e.href)
+
+    loadStyle(styleFiles)
+
+    for (const e of styleElements) {
+      e.parentElement.removeChild(e)
+    }
+
     const scriptElements = element.querySelectorAll('script')
 
-    loadStyle(Array.from(styleElements).map((e) => e.href), styleElements)
-    loadScript(Array.from(scriptElements).map((e) => e.src).filter((e) => e.indexOf('vscode') === -1), scriptElements, after)
+    const scriptFiles = Array.from(scriptElements)
+      .map((e) => e.src)
+      .filter((e) => e.indexOf('vscode') === -1)
 
-    // Needs a delay so JS can be loaded and define any globals, so after callbacks will work.
-    await sleep(50)
+    for (const e of scriptElements) {
+      e.parentElement.removeChild(e)
+    }
+
+    loadScript(scriptFiles, after)
   } catch (err) {
     console.error(err)
 
@@ -104,8 +128,6 @@ function verifyOptions (o, possibleOptions = {}) {
 function showAndHideSiblings (selector, displayAs, siblingsAt) {
   const el = document.querySelector(`${siblingsAt} > ${selector}`)
 
-  console.log('showAndHideSiblings: ', selector, displayAs, siblingsAt, `${siblingsAt} > ${selector}`)
-
   el.style.display = displayAs
 
   const siblings = (typeof siblingsAt === 'undefined')
@@ -119,10 +141,6 @@ function showAndHideSiblings (selector, displayAs, siblingsAt) {
 
 async function loadContent (event, options) {
   const validOptions = {
-    action: {
-      type: 'string',
-      list: ['click']
-    },
     url: {
       type: 'string',
       test: (s) => {
@@ -141,11 +159,11 @@ async function loadContent (event, options) {
     element: {
       type: 'string'
     },
-    displayAs: {
+    self: {
       type: 'string'
     },
-    globals: {
-      type: 'list'
+    displayAs: {
+      type: 'string'
     },
     after: {
       type: 'function'
@@ -154,19 +172,11 @@ async function loadContent (event, options) {
 
   verifyOptions(options, validOptions)
 
-  if (!event.target.getAttribute('data-has-loaded')) {
-    event.target.setAttribute('data-has-loaded', true)
-
-    const selector = `${options.container} > ${options.element}`
-
-    await fetchContent(options.url, document.querySelector(selector), options.after)
+  if (document.querySelector(options.self) === null) {
+    await fetchContent(options.url, document.querySelector(options.element), options.after)
   }
 
   showAndHideSiblings(options.element, options.displayAs, options.container)
-
-  if (typeof options.after === 'function') {
-    options.after()
-  }
 
   const backBtn = document.getElementById('spa-back')
   const history = backBtn.getAttribute('data-history')
@@ -179,13 +189,11 @@ async function loadContent (event, options) {
   const currentSelector = container.getAttribute('data-current-element')
 
   const prev = historyData === null
-    ? {}
+    ? []
     : historyData.slice(-1)[0]
 
   if (currentSelector !== null && JSON.stringify(prev) !== JSON.stringify(currentSelector)) {
     historyData.push(currentSelector)
-
-    console.log(`stored current: ${currentSelector}`)
   }
 
   if (historyData.length > 0) {
@@ -195,10 +203,8 @@ async function loadContent (event, options) {
   container.setAttribute('data-current-element', JSON.stringify({
     element: options.element,
     displayAs: options.displayAs,
-    parentSelector: options.container
+    container: options.container
   }))
-
-  // console.log(container.getAttribute('data-current-element'))
 }
 
 document.getElementById('spa-fetch').addEventListener('click', async (event) => {
@@ -206,6 +212,7 @@ document.getElementById('spa-fetch').addEventListener('click', async (event) => 
     url: './spa-test/one.html',
     container: '#spa-container',
     element: 'div.tab:nth-of-type(1)',
+    self: '#spa-test-one',
     displayAs: 'block',
     after: () => {
       testOne()
@@ -227,13 +234,11 @@ document.getElementById('spa-back').addEventListener('click', (event) => {
   if (historyData.length > 0) {
     const prev = JSON.parse(historyData.slice(-1)[0])
 
-    console.log(prev)
-
-    showAndHideSiblings(prev.element.toString(), prev.displayAs.toString(), prev.parentSelector.toString())
+    showAndHideSiblings(prev.element.toString(),
+      prev.displayAs.toString(),
+      prev.container.toString())
 
     container.setAttribute('data-current-element', JSON.stringify(prev))
-
-    console.log(`set current: ${container.getAttribute('data-current-element')}`)
 
     if (historyData.length - 1 > 0) {
       backBtn.setAttribute('data-history', JSON.stringify(historyData.slice(0, -1)))

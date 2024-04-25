@@ -9,21 +9,31 @@
 
   w.testThree = testThree
 
-  function testOthers () {
-    w.testOne()
-    w.testTwo()
-  }
-
   document.getElementById('spa-test-three').addEventListener('click', async (event) => {
     const options = {
       url: './spa-test/two.html',
       container: '#spa-container',
       element: 'div.tab:nth-of-type(2)',
+      self: '#spa-test-two',
       displayAs: 'block',
       after: () => {
-        testOthers()
-      },
-      globals: ['testOne', 'testTwo']
+        testTwo()
+      }
+    }
+
+    await loadContent(event, options)
+  })
+
+  document.getElementById('spa-test-four').addEventListener('click', async (event) => {
+    const options = {
+      url: './spa-test/one.html',
+      container: '#spa-container',
+      element: 'div.tab:nth-of-type(1)',
+      self: '#spa-test-one',
+      displayAs: 'block',
+      after: () => {
+        testOne()
+      }
     }
 
     await loadContent(event, options)

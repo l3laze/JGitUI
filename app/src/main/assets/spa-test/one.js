@@ -4,7 +4,7 @@
 
 ;((w) => {
   function testOne () {
-    // console.log('Hi')
+    console.log('Hi')
   }
 
   w.testOne = testOne
@@ -14,11 +14,11 @@
       url: './spa-test/two.html',
       container: '#spa-container',
       element: 'div.tab:nth-of-type(2)',
+      self: '#spa-test-two',
       displayAs: 'block',
       after: () => {
         testTwo()
-      },
-      globals: ['testTwo']
+      }
     }
 
     await loadContent(event, options)
