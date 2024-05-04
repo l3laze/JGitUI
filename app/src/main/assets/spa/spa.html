@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SPA">
+
+  <title>SPA</title>
+
+  <link rel="stylesheet" href="./spa.css" async>
+</head>
+<body>
+  <nav>
+    <ul class="nav-bar">
+      <li class="nav-item" id="nav-back-btn">&#x1F870;</li>
+      <li class="nav-item"><span id="nav-title">JGitUI</span></li>
+      <li class="nav-item" id="nav-search-btn">&#x2315;</li>
+      <li class="nav-item has-dropdown" id="nav-hamburger" title="menu hamburger">&#x2630;</li>
+    </ul>
+
+    <ul id="dropdown-main" class="dropdown">
+      <li class="dropdown-item" id="menu-close">
+        <span>Close</span>
+      </li>
+      <li class="dropdown-item" id="menu-add">
+        <span>Add</span>
+      </li>
+      <li class="dropdown-item" id="menu-settings">
+        <span>Settings</span>
+      </li>
+    </ul>
+
+    <input type="search" id="nav-search" placeholder="Search Repos" incremental="true">
+
+    <span id="nav-search-cancel">x</span>
+  </nav>
+
+  <dialog id="add-dialog">
+    <span id="close-dialog-btn">&times;</span>
+    <h2>Add Repo</h2>
+
+    <form id="add-repo-form">
+      <div>
+        <ul>
+          <li id="init-tab-btn" class="active">Init</li>
+
+          <li id="clone-tab-btn">Clone</li>
+
+          <li id="import-tab-btn">Import</li>
+        </ul>
+
+        <div id="init-tab" class="container">
+          <label for="init-name">Name</label>
+          <input type="text" name="init-name">
+
+          <br>
+
+          <label for="init-dir">Dir</label>
+          <input type="text" name="init-dir">
+
+          <br>
+
+          <label for="init-gitignore">Git Ignore</label>
+          <select name="init-gitignore">
+            <option>None</option>
+          </select>
+        </div>
+
+        <div id="clone-tab" class="container">
+          <label for="clone-url">URL</label>
+          <input type="url" name="clone-url">
+
+          <br>
+
+          <label for="clone-name">Name</label>
+          <input type="text" name="clone-name">
+
+          <br>
+
+          <label for="clone-dir">Dir</label>
+          <input type="text" name="clone-dir">
+        </div>
+
+        <div id="import-tab" class="container">
+          <label for="import-dir">Dir</label>
+          <input type="text" name="import-dir">
+
+          <br>
+
+          <label for="import-name">Name</label>
+          <input type="text" name="import-name">
+        </div>
+      </div>
+
+      <div id="dialog-controls">
+        <button type="submit">Okay</button>
+        <button type="button" id="add-dialog-cancel">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="view-container">
+    <div id="repo-view-container">
+      <ul id="repo-list"></ul>
+
+      <ul id="repo-file-list"></ul>
+
+      <pre id="repo-file-view" class="line-numbers"><code></code><span>
+        <button type="button" id="repo-file-view-settings">&#x2638;</button>
+      </span></pre>
+
+      <ul id="file-view-settings-menu">
+        <li><label for="file-view-wrap">Wrap</label><input type="checkbox" id="file-view-wrap"></li>
+        <li><label for="file-view-line-height">Line Height</label><input type="number" min="1" step="0.1" id="file-view-line-height"></li>
+        <li><label for="file-view-font-size">Font Size</label><input type="number" min="1" step="1" id="file-view-font-size"></li>
+      </ul>
+    </div>
+  </div>
+
+  <span id="script-container">
+    <script src="./index.mjs" type="module" async defer></script>
+  </span>
+</body>
+</html>
