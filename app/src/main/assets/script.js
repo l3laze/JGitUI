@@ -27,8 +27,6 @@ class AsyncValue {
 
     const fractionOfSecondMultiplier = 1000 / pollTime
 
-    // console.log(pollTime + ' ' + fractionOfSecondMultiplier)
-
     do {
       await sleep(pollTime)
 
@@ -80,8 +78,7 @@ console.log = function (...args) {
 
 /* eslint-disable-next-line no-unused-vars */
 function isAndroidOS () {
-  return navigator.userAgent.toLowerCase().indexOf('android') > -1 &&
-    typeof window.android !== 'undefined' && typeof window.android.requestPermission !== 'undefined'
+  return typeof window.android !== 'undefined' && typeof window.android.requestPermission !== 'undefined'
 }
 
 const container = document.querySelector('#main-page #container')
@@ -130,7 +127,7 @@ window.addEventListener('DOMContentLoaded', async function () {
       })
     })
 
-  document.querySelector('.repo-list-item .repo-list-name').click()
+  // document.querySelector('.repo-list-item .repo-list-name').click()
 })
 
 document.getElementById('new-repo-btn').addEventListener('click', async (event) => {
@@ -199,6 +196,10 @@ document.getElementById('menu-bar-hamburger').addEventListener('click', () => {
 
 document.getElementById('sidebar-close').addEventListener('click', (event) => {
   event.currentTarget.parentElement.style.display = 'none'
+})
+
+document.getElementById('spa-btn').addEventListener('click', () => {
+  window.location = './spa.html'
 })
 
 searchBtn.addEventListener('click', function () {

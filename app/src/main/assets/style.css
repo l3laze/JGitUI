@@ -110,7 +110,7 @@ header button:hover {
   margin-top: 0.5rem;
 }
 
-#menu-sidebar li:not(#sidebar-close, #init-btn, #new-repo-btn, #import-btn, #settings-btn) {
+#menu-sidebar li:not(#sidebar-close, #init-btn, #new-repo-btn, #import-btn, #settings-btn, #spa-btn) {
   display: none;
 }
 
