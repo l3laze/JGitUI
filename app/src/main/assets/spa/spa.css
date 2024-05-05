@@ -242,12 +242,12 @@ nav {
       display: block;
       counter-increment: line;
       user-select: text;
-      word-break: break-all;
 
       &> span {
-        display: inline-block;
+        display: inline;
         width: fit-content;
         font-size: inherit;
+        word-break: break-word;
       }
 
       &::before {
