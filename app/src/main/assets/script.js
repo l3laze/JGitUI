@@ -1,6 +1,6 @@
 'use strict'
 
-/* global android, openRepo, openNewRepoDialog */
+/* global android, openRepo */
 
 class AsyncValue {
   #value
@@ -199,7 +199,7 @@ document.getElementById('sidebar-close').addEventListener('click', (event) => {
 })
 
 document.getElementById('spa-btn').addEventListener('click', () => {
-  window.location = './spa.html'
+  window.location = './spa/spa.html'
 })
 
 searchBtn.addEventListener('click', function () {
