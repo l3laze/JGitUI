@@ -130,8 +130,8 @@ function highlight (el, language, hashAsComment = false) {
       tokenType = 11
       while (![
         1, //  0: whitespace
-        /[/{}[(\-+*=<>:|\\.,?!&@~;]/[test](chr) || (chr === '#' && !hashAsComment), //  1: operator or braces
-        /[\])]/[test](chr), //  2: closing brace
+        /[/{}[(\-+*=<>:|\\.,?!&@~;$]/[test](chr) || (chr === '#' && !hashAsComment), //  1: operator or braces
+        /[[\](){}]/[test](chr), //  2: brace
         /[$\w]/[test](chr), //  3: (key)word
         chr === '/' && //  4: regex
         (lastTokenType < 2) && // previous token was an opening brace or an operator (otherwise division, not a regex)
