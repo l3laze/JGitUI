@@ -173,7 +173,10 @@ function highlight (el, language, hashAsComment = false) {
 
     if (chr === '\n') {
       // Preserve newlines in text representation.
-      codeLine[appendChild](_document.createTextNode('\n'))
+
+      const newLine = _document.createElement('span')
+      newLine.appendChild(_document.createTextNode('\n'))
+      codeLine[appendChild](newLine)
 
       el[appendChild](codeLine)
 
