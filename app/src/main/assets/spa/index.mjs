@@ -277,7 +277,7 @@ class JGit {
     this.projectDir = ''
   }
 
-  createRepo (options) {
+  createRepo = async (options) => {
     const r = new Repo(options.name)
 
     this.repoList.push(r)
@@ -324,7 +324,7 @@ async function openRepo (repoData) {
         container: '#repo-view-container',
         parent: '#repo-file-view',
         displayAs: 'block',
-        title: f
+        title: `...${f.slice(f.lastIndexOf('/'))}`
       })
     })
   }
@@ -343,13 +343,14 @@ async function initApp () {
 
   window.jgit = jgit
 
-  const repoSelf = jgit.createRepo({
-    name: 'JGitUI'
+  const repoSelf = await jgit.createRepo({
+    name: 'JGitUI Repo'
   })
 
   await repoSelf.addFile('./spa/spa.html')
-  await repoSelf.addFile('./spa/MainActivity.java')
+  await repoSelf.addFile('./spa/spa.css')
   await repoSelf.addFile('./spa/Spa.mjs')
+  await repoSelf.addFile('./spa/MainActivity.java')
 
   await repoSelf.createCommit('something, at least.')
 
@@ -359,8 +360,6 @@ async function initApp () {
 
   repoLi.addEventListener('click', async () => {
     const repoTitle = repoLi.querySelector('h3').textContent
-
-    // console.log(`Opening ${repoTitle}`)
 
     await openRepo(jgit.repoList.filter((r) => r.name === repoTitle)[0])
   })
