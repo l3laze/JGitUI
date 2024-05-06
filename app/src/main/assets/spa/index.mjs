@@ -193,6 +193,32 @@ async function initListeners () {
     codeElement.style.lineHeight = ((window.getComputedStyle(codeElement).lineHeight) * 0.75).toString().substring(0, 3)
   })
 
+  // $('#repo-file-view').addEventListener('mouseup', () => {
+  //   let range
+
+  //   try {
+  //     range = window.getSelection().getRangeAt(0)
+  //   } catch (err) {
+  //     return
+  //   }
+
+  //   const contents = range.cloneContents()
+
+  //   function extractText (node) {
+  //     if (typeof node.data !== 'undefined') {
+  //       return node.data
+  //     } else if (typeof node.textContent !== 'undefined') {
+  //       return node.textContent
+  //     } else {
+  //       Array.from(node.childNodes).map((c) => extractText(c))
+  //     }
+  //   }
+
+  //   const selected = extractText(contents)
+
+  //   console.log(`selected: "${selected}"`)
+  // })
+
   window.App = App
 }
 

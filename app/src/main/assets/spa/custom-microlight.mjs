@@ -21,6 +21,7 @@ function highlight (el, language, hashAsComment = false) {
   let prev1 // previous character
   let prev2 // the one before the previous
   let token = el.innerHTML = '' // current token content (and cleaning the node)
+  // let spanCount = 0
 
   // current token type:
   //  0: anything else (whitespaces / newlines)
@@ -115,6 +116,8 @@ function highlight (el, language, hashAsComment = false) {
           // yield
         ]
 
+        // spanCount++
+
         // remapping token type into style
         // (some types are highlighted similarly)
         codeLine[appendChild](
@@ -138,6 +141,8 @@ function highlight (el, language, hashAsComment = false) {
           textShadow + _3px_0px_5 + 4 + pxColor + alpha / 2 + '),-' +
           _3px_0px_5 + pxColor + alpha / 4 + brace
         ][tokenIndex])
+
+        // node.setAttribute('id', `code-span-${spanCount}`)
 
         node[appendChild](_document.createTextNode(token))
       }
@@ -175,7 +180,12 @@ function highlight (el, language, hashAsComment = false) {
       // Preserve newlines in text representation.
 
       const newLine = _document.createElement('span')
+
+      // spanCount++
+      // newLine.setAttribute('id', `code-span-${spanCount}`)
+
       newLine.appendChild(_document.createTextNode('\n'))
+
       codeLine[appendChild](newLine)
 
       el[appendChild](codeLine)
