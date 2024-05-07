@@ -343,7 +343,7 @@ async function openRepo (repoData) {
 
       const fext = f.slice(f.lastIndexOf('.') + 1)
 
-      highlight(codeElement, fext)
+      highlight(codeElement, ['html', 'css', 'js', 'mjs', 'java'].indexOf(fext) === -1)
 
       await App.loadContent({
         ownElement: '#repo-file-view',
