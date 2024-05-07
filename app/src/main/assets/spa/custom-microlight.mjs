@@ -12,8 +12,33 @@ const _3px_0px_5 = '3px 0px 5'
 const brace = ')'
 const highlightColors = ['none', 'skyblue', 'orchid', 'darkorange', 'olivedrab']
 const color = ';color:'
+/* const defaultKeywords =
+  'abstract,alias,and,arguments,array,asm,assert,async,await,'
+  + 'base,begin,bool,boolean,break,byte,'
+  + 'case,catch,char,checked,class,clone,compl,console,constructor,continue,'
+  + 'debugger,decimal,declare,def,fault,defer,delegate,delete,do,document,double,display,'
+  + 'echo,elseif,else,ensure,enum,event,except,exec,explicit,export,extend,'
+  + 'fallthrough,false,final,finally,fixed,float,foreach,filter,friend,from,function,'
+  + 'global,goto,guard,'
+  + 'head,href'
+  + 'if,implements,implicit,import,include,includes,include_once,inline,instanceof,int,indexOf,'
+  + 'lambda,length,let,location,lock,long,lastIndexOf,'
+  + 'map,module,mutable,'
+  + 'NaN,namespace,native,next,new,nil,not,null,'
+  + 'object,of,operator,or,out,override,'
+  + 'package,params,private,protected,protocol,public,parentElement,'
+  + 'raise,readonly,redo,ref,register,repeat,require,require_once,rescue,restrict,return,remove,removeChild,'
+  + 'sbyte,sealed,self,short,signed,sizeof,static,string,struct,subscript,super,synchronized,switch,slice,style,'
+  + 'template,then,this,throw,throws,transient,true,try,type,typealias,typedef,typeid,typename,'
+  + 'unchecked,undefined,union,unless,unsigned,until,use,using,'
+  + 'var,virtual,void,volatile,'
+  + 'wchar_t,when,where,while,window,width,'
+  + 'xor,'
+  + 'yield'
+    .split(',')
+*/
 
-function highlight (el, language, hashAsComment = false) {
+function highlight (el, hashAsComment = false) {
   const text = el.textContent.replaceAll('\r\n', '\n')
   let pos = 0 // current position
   let next1 = text[0] // next character
@@ -36,6 +61,7 @@ function highlight (el, language, hashAsComment = false) {
   //  9: multiline comment /* */
   // 10: single-line comment starting with two slashes //
   // 11: single-line comment starting with hash #
+
   let tokenType = 0
 
   // kept to determine between regex and division
@@ -54,7 +80,7 @@ function highlight (el, language, hashAsComment = false) {
 
   // running through characters and highlighting
   /* eslint-disable-next-line no-sequences */
-  while (prev2 = prev1, prev1 = tokenType < 8 && prev1 === '\\' ? 1 : chr) {
+  while (prev2 = prev1, prev1 = (tokenType < 8 && prev1 === '\\') ? 1 : chr) {
   // escaping if needed (with exception for comments), previous character
   // will not be therefore recognized as a token finalize condition
     chr = next1
@@ -81,39 +107,16 @@ function highlight (el, language, hashAsComment = false) {
       // appending the token to the result
       if (token) {
         const tokenIndex = [
-          !tokenType // not formatted
-            ? 0 // punctuation
+          !tokenType
+            ? 0 // not formatted
             : tokenType < 3
-              ? 2 // comments
+              ? 2 // punctuation
               : tokenType > 7
-                ? 4 // regex and strings
+                ? 4 // comments
                 : tokenType > 3
-                  ? 3
+                  ? 3 // regex and strings
                   // otherwise tokenType === 3, (key)word (with +, becomes 1 if regexp matches, or 0 otherwise)
                   : +/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync|wait)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|on(sole|st(ructor)?)?|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do(cument|uble)|display|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or([eE]ach)?|ilter|riend|rom|unc(tion)?)|global|goto|guard|h(ead|ref)|i(f|mp(lements|licit|ort)|n(it|clude(s)?(_once)?|line|out|stanceof|t(erface|ernal)?)?|s|ndexOf)|l(ambda|e(ngth|t)|oc(ation|k)|ong|astIndexOf)|m(ap|icrolight|odule|utable)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|f|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic|arentElement)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn|move(Child)?))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|lice|tyle)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of)|extContent)|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|i(ndow|th))|xor|yield)$/[test](token)
-
-          // abstract,alias,and,arguments,array,asm,assert,async,await,
-          // base,begin,bool,boolean,break,byte,
-          // case,catch,char,checked,class,clone,compl,console,constructor,continue,
-          // debugger,decimal,declare,def,fault,defer,delegate,delete,do,document,double,display,
-          // echo,elseif,else,ensure,enum,event,except,exec,explicit,export,extend,
-          // fallthrough,false,final,finally,fixed,float,foreach,filter,friend,from,function,
-          // global,goto,guard,
-          // head,href
-          // if,implements,implicit,import,include,includes,include_once,inline,instanceof,int,indexOf,
-          // lambda,length,let,location,lock,long,lastIndexOf,
-          // map,module,mutable,
-          // NaN,namespace,native,next,new,nil,not,null,
-          // object,of,operator,or,out,override,
-          // package,params,private,protected,protocol,public,parentElement,
-          // raise,readonly,redo,ref,register,repeat,require,require_once,rescue,restrict,return,remove,removeChild,
-          // sbyte,sealed,self,short,signed,sizeof,static,string,struct,subscript,super,synchronized,switch,slice,style,
-          // template,then,this,throw,throws,transient,true,try,type,typealias,typedef,typeid,typename,
-          // un,unchecked,undefined,union,unless,unsigned,until,use,using,
-          // var,virtual,void,volatile,
-          // wchar_t,when,where,while,window,width,
-          // xor,
-          // yield
         ]
 
         // spanCount++
