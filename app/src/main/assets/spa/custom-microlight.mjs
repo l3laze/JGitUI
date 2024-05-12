@@ -38,7 +38,7 @@ const color = ';color:'
     .split(',')
 */
 
-function highlight (el, hashAsComment = false) {
+async function highlight (el, hashAsComment = false) {
   const text = el.textContent.replaceAll('\r\n', '\n')
   let pos = 0 // current position
   let next1 = text[0] // next character
@@ -46,7 +46,6 @@ function highlight (el, hashAsComment = false) {
   let prev1 // previous character
   let prev2 // the one before the previous
   let token = el.innerHTML = '' // current token content (and cleaning the node)
-  // let spanCount = 0
 
   // current token type:
   //  0: anything else (whitespaces / newlines)
@@ -70,6 +69,7 @@ function highlight (el, hashAsComment = false) {
   let multichar
   let node
   let codeLine = _document.createElement('code')
+  // let lineCount = 0
 
   // calculating the colors for the style templates
   const colorArr = /(\d*, \d*, \d*)(, ([.\d]*))?/.exec(
@@ -77,6 +77,8 @@ function highlight (el, hashAsComment = false) {
   )
   const pxColor = 'px rgba(' + colorArr[1] + ','
   const alpha = colorArr[3] || 1
+
+  const zeroWidthSpace = '​' // &ZeroWidthSpace;
 
   // running through characters and highlighting
   /* eslint-disable-next-line no-sequences */
@@ -119,8 +121,6 @@ function highlight (el, hashAsComment = false) {
                   : +/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync|wait)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|on(sole|st(ructor)?)?|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do(cument|uble)|display|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or([eE]ach)?|ilter|riend|rom|unc(tion)?)|global|goto|guard|h(ead|ref)|i(f|mp(lements|licit|ort)|n(it|clude(s)?(_once)?|line|out|stanceof|t(erface|ernal)?)?|s|ndexOf)|l(ambda|e(ngth|t)|oc(ation|k)|ong|astIndexOf)|m(ap|icrolight|odule|utable)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|f|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic|arentElement)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn|move(Child)?))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|lice|tyle)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of)|extContent)|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|i(ndow|th))|xor|yield)$/[test](token)
         ]
 
-        // spanCount++
-
         // remapping token type into style
         // (some types are highlighted similarly)
         codeLine[appendChild](
@@ -147,7 +147,23 @@ function highlight (el, hashAsComment = false) {
 
         // node.setAttribute('id', `code-span-${spanCount}`)
 
-        node[appendChild](_document.createTextNode(token))
+        if (tokenType > 0 || tokenType < 4 || tokenType > 4) {
+          const temp = _document.createElement('span')
+
+          // for (const t of token.split('')) {
+          //   temp.appendChild(_document.createTextNode(t))
+
+          //   temp.appendChild(_document.createTextNode(zeroWidthSpace))
+          // }
+
+          temp.appendChild(_document.createTextNode(token + zeroWidthSpace))
+
+          node[appendChild](temp)
+        } else {
+          node[appendChild](_document.createTextNode(token))
+        }
+
+        codeLine[appendChild](_document.createElement('span').appendChild(_document.createTextNode(zeroWidthSpace)))
       }
 
       // saving the previous token type (skipping whitespaces and comments)
@@ -184,12 +200,19 @@ function highlight (el, hashAsComment = false) {
 
       const newLine = _document.createElement('span')
 
-      // spanCount++
-      // newLine.setAttribute('id', `code-span-${spanCount}`)
-
       newLine.appendChild(_document.createTextNode('\n'))
 
       codeLine[appendChild](newLine)
+
+      codeLine.classList.add('has-spaces')
+
+      const spaces = /(?<spaces>[ ]*)/.exec(codeLine.textContent)
+
+      // lineCount++
+
+      codeLine.setAttribute('data-spaces', spaces.groups.spaces.length)
+
+      // console.log(`${lineCount}: "${spaces.groups.spaces}" ${codeLine.getAttribute('data-spaces')}`)
 
       el[appendChild](codeLine)
 
