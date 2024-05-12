@@ -3,6 +3,7 @@
 import Spa from './Spa.mjs'
 import $ from './jQuery-like.mjs'
 import highlight from './custom-microlight.mjs'
+// import highlight from './microlight-rewrite.mjs'
 
 let App
 
@@ -19,9 +20,11 @@ async function initListeners () {
   const codeElement = $('#repo-file-view > code')
   const dropdown = document.querySelector('#dropdown-main')
 
-  const fvWrap = $('#file-view-wrap')
-  const fvLineHeight = $('#file-view-line-height')
-  const fvFontSize = $('#file-view-font-size')
+  const addDialogTabs = $.all('#add-dialog ul li')
+
+  const fvBarWrap = $('#file-view-bar-wrap')
+  const fvBarLineHeight = $('#file-view-bar-line-height')
+  const fvBarFontSize = $('#file-view-bar-font-size')
 
   App = new Spa(backBtn)
 
@@ -37,10 +40,16 @@ async function initListeners () {
     dropdown.style.display = 'none'
   })
 
-  backBtn.addEventListener('click', async (event) => {
+  backBtn.addEventListener('click', async () => {
     menuCloseBtn.click()
 
     App.goBack()
+
+    const fvMenuBar = $('#file-view-settings-bar')
+
+    if (App.current.ownElement !== '#repo-file-list') {
+      fvMenuBar.style.display = 'none'
+    }
   })
 
   searchBtn.addEventListener('click', (event) => {
@@ -138,8 +147,6 @@ async function initListeners () {
     console.log('opening settings')
   })
 
-  const addDialogTabs = $.all('#add-dialog ul li')
-
   addDialogTabs.forEach((t) => {
     t.addEventListener('click', (event) => {
       addDialogTabs.forEach((dialogTab) => dialogTab.classList.remove('active'))
@@ -154,24 +161,7 @@ async function initListeners () {
     })
   })
 
-  $('#repo-file-view-settings').addEventListener('click', () => {
-    const fvMenu = $('#file-view-settings-menu')
-
-    if (window.getComputedStyle(fvMenu).display !== 'none') {
-      fvMenu.style.display = 'none'
-    } else {
-      const lh = parseInt(window.getComputedStyle(codeElement).lineHeight)
-      const fs = parseInt(window.getComputedStyle(codeElement).fontSize)
-
-      fvLineHeight.value = (lh / fs + 0.1).toString().substring(0, 3)
-
-      fvFontSize.value = parseInt(window.getComputedStyle(codeElement).fontSize)
-
-      fvMenu.style.display = 'block'
-    }
-  })
-
-  fvWrap.addEventListener('change', () => {
+  fvBarWrap.addEventListener('change', () => {
     if (window.getComputedStyle(codeElement).whiteSpace !== 'pre') {
       codeElement.style.whiteSpace = 'pre'
     } else {
@@ -179,45 +169,19 @@ async function initListeners () {
     }
   })
 
-  fvLineHeight.addEventListener('change', () => {
-    codeElement.style.lineHeight = fvLineHeight.value
+  fvBarLineHeight.addEventListener('change', () => {
+    codeElement.style.lineHeight = fvBarLineHeight.value
   })
 
-  fvFontSize.addEventListener('change', () => {
-    codeElement.style.fontSize = fvFontSize.value + 'px'
+  fvBarFontSize.addEventListener('change', () => {
+    codeElement.style.fontSize = fvBarFontSize.value + 'px'
 
     if (parseInt(codeElement.style.fontSize) > parseInt(window.getComputedStyle(codeElement).lineHeight)) {
-      codeElement.style.lineHeight = Math.ceil(fvFontSize.value * 1.5) + 'px'
+      codeElement.style.lineHeight = Math.ceil(fvBarFontSize.value * 1.5) + 'px'
     }
 
     codeElement.style.lineHeight = ((window.getComputedStyle(codeElement).lineHeight) * 0.75).toString().substring(0, 3)
   })
-
-  // $('#repo-file-view').addEventListener('mouseup', () => {
-  //   let range
-
-  //   try {
-  //     range = window.getSelection().getRangeAt(0)
-  //   } catch (err) {
-  //     return
-  //   }
-
-  //   const contents = range.cloneContents()
-
-  //   function extractText (node) {
-  //     if (typeof node.data !== 'undefined') {
-  //       return node.data
-  //     } else if (typeof node.textContent !== 'undefined') {
-  //       return node.textContent
-  //     } else {
-  //       Array.from(node.childNodes).map((c) => extractText(c))
-  //     }
-  //   }
-
-  //   const selected = extractText(contents)
-
-  //   console.log(`selected: "${selected}"`)
-  // })
 
   window.App = App
 }
@@ -343,7 +307,7 @@ async function openRepo (repoData) {
 
       const fext = f.slice(f.lastIndexOf('.') + 1)
 
-      highlight(codeElement, ['html', 'css', 'js', 'mjs', 'java'].indexOf(fext) === -1)
+      await highlight(codeElement, ['html', 'css', 'js', 'mjs', 'java'].indexOf(fext) === -1)
 
       await App.loadContent({
         ownElement: '#repo-file-view',
@@ -352,6 +316,22 @@ async function openRepo (repoData) {
         displayAs: 'block',
         title: `...${f.slice(f.lastIndexOf('/'))}`
       })
+
+      const lh = parseInt(window.getComputedStyle(codeElement).lineHeight)
+      const fs = parseInt(window.getComputedStyle(codeElement).fontSize)
+
+      const fvLineHeight = document.getElementById('file-view-bar-line-height')
+      const fvFontSize = document.getElementById('file-view-bar-font-size')
+
+      fvLineHeight.value = (lh / fs + 0.1).toString().substring(0, 3)
+
+      fvFontSize.value = parseInt(window.getComputedStyle(codeElement).fontSize)
+
+      const fvMenuBar = $('#file-view-settings-bar')
+
+      if (window.getComputedStyle(fvMenuBar).display === 'none') {
+        fvMenuBar.style.display = 'flex'
+      }
     })
   }
 
