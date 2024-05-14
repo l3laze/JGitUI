@@ -1,5 +1,7 @@
 'use strict'
 
+import { MLP } from './mlp.mjs'
+
 const _window = window
 const _document = document
 const appendChild = 'appendChild'
@@ -79,6 +81,13 @@ async function highlight (el, hashAsComment = false) {
   const alpha = colorArr[3] || 1
 
   const zeroWidthSpace = '​' // &ZeroWidthSpace;
+
+  const mlp = new MLP()
+
+  mlp.tokenize(text)
+
+  console.log(mlp.tokens)
+  // console.log(mlp.tokens.map((t) => t.value).join(''))
 
   // running through characters and highlighting
   /* eslint-disable-next-line no-sequences */
@@ -218,11 +227,12 @@ async function highlight (el, hashAsComment = false) {
 
       codeLine = _document.createElement('code')
     } else {
-      // Don't add \n to token
+      // Don't add \n to tokens
       token += chr
     }
   }
 
+  // Empty line at eof file
   if (text[text.length - 1] === '\n') {
     el[appendChild](_document.createElement('code'))
   }
