@@ -1,6 +1,7 @@
 'use strict'
 
-import { MLP } from './mlp.mjs'
+import { lexer } from './lexer.mjs'
+import { Highlighter } from './highlighter.mjs'
 
 const _window = window
 const _document = document
@@ -41,13 +42,18 @@ const color = ';color:'
 */
 
 async function highlight (el, hashAsComment = false) {
-  const text = el.textContent.replaceAll('\r\n', '\n')
+  let text = el.textContent.replaceAll('\r\n', '\n')
+
+  if (text[text.length - 1] !== '\n') {
+    text += '\n'
+  }
+
   let pos = 0 // current position
   let next1 = text[0] // next character
   let chr = 1 // current character
   let prev1 // previous character
   let prev2 // the one before the previous
-  let token = el.innerHTML = '' // current token content (and cleaning the node)
+  let token = '' // current token content
 
   // current token type:
   //  0: anything else (whitespaces / newlines)
@@ -82,12 +88,7 @@ async function highlight (el, hashAsComment = false) {
 
   const zeroWidthSpace = '​' // &ZeroWidthSpace;
 
-  const mlp = new MLP()
-
-  mlp.tokenize(text)
-
-  console.log(mlp.tokens)
-  // console.log(mlp.tokens.map((t) => t.value).join(''))
+  el.innerHTML = '' // clean the node
 
   // running through characters and highlighting
   /* eslint-disable-next-line no-sequences */
@@ -127,8 +128,7 @@ async function highlight (el, hashAsComment = false) {
                 : tokenType > 3
                   ? 3 // regex and strings
                   // otherwise tokenType === 3, (key)word (with +, becomes 1 if regexp matches, or 0 otherwise)
-                  : +/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync|wait)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|on(sole|st(ructor)?)?|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do(cument|uble)|display|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or([eE]ach)?|ilter|riend|rom|unc(tion)?)|global|goto|guard|h(ead|ref)|i(f|mp(lements|licit|ort)|n(it|clude(s)?(_once)?|line|out|stanceof|t(erface|ernal)?)?|s|ndexOf)|l(ambda|e(ngth|t)|oc(ation|k)|ong|astIndexOf)|m(ap|icrolight|odule|utable)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|f|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic|arentElement)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn|move(Child)?))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|lice|tyle)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of)|extContent)|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|i(ndow|th))|xor|yield)$/[test](token)
-        ]
+                  : +/^(a(bstract|lias|nd|rguments|rray|s(m|sert)?|uto|sync|wait)|b(ase|egin|ool(ean)?|reak|yte)|c(ase|atch|har|hecked|lass|lone|ompl|on(sole|st(ructor)?)?|ontinue)|de(bugger|cimal|clare|f(ault|er)?|init|l(egate|ete)?)|do(cument|uble)|display|e(cho|ls?if|lse(if)?|nd|nsure|num|vent|x(cept|ec|p(licit|ort)|te(nds|nsion|rn)))|f(allthrough|alse|inal(ly)?|ixed|loat|or([eE]ach)?|ilter|riend|rom|unc(tion)?)|global|goto|guard|h(ead|ref)|i(f|mp(lements|licit|ort)|n(it|clude(s)?(_once)?|line|out|stanceof|t(erface|ernal)?)?|s|ndexOf)|l(ambda|e(ngth|t)|oc(ation|k)|ong|astIndexOf)|m(ap|icrolight|odule|utable)|NaN|n(amespace|ative|ext|ew|il|ot|ull)|o(bject|f|perator|r|ut|verride)|p(ackage|arams|rivate|rotected|rotocol|ublic|arentElement)|r(aise|e(adonly|do|f|gister|peat|quire(_once)?|scue|strict|try|turn|move(Child)?))|s(byte|ealed|elf|hort|igned|izeof|tatic|tring|truct|ubscript|uper|ynchronized|witch|lice|tyle)|t(emplate|hen|his|hrows?|ransient|rue|ry|ype(alias|def|id|name|of)|extContent)|u(n(checked|def(ined)?|ion|less|signed|til)|se|sing)|v(ar|irtual|oid|olatile)|w(char_t|hen|here|hile|i(ndow|th))|xor|yield)$/[test](token)]
 
         // remapping token type into style
         // (some types are highlighted similarly)
