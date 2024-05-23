@@ -2,8 +2,8 @@
 
 import Spa from './Spa.mjs'
 import $ from './jQuery-like.mjs'
-import highlight from './custom-microlight.mjs'
-// import highlight from './microlight-rewrite.mjs'
+// import highlight from './custom-microlight.mjs'
+import { Highlighter } from './highlighter.mjs'
 
 let App
 
@@ -305,9 +305,13 @@ async function openRepo (repoData) {
 
       codeElement.textContent = repoData.files[f]
 
-      const fext = f.slice(f.lastIndexOf('.') + 1)
+      // const fext = f.slice(f.lastIndexOf('.') + 1)
 
-      await highlight(codeElement, ['html', 'css', 'js', 'mjs', 'java'].indexOf(fext) === -1)
+      // await highlight(codeElement, ['html', 'css', 'js', 'mjs', 'java'].indexOf(fext) === -1)
+
+      const highlighter = new Highlighter()
+
+      highlighter.highlight(codeElement)
 
       await App.loadContent({
         ownElement: '#repo-file-view',
@@ -357,6 +361,11 @@ async function initApp () {
   await repoSelf.addFile('./spa/spa.css')
   await repoSelf.addFile('./spa/Spa.mjs')
   await repoSelf.addFile('./spa/MainActivity.java')
+  await repoSelf.addFile('./spa/nanochess.js')
+  await repoSelf.addFile('./spa/thousand.js')
+  await repoSelf.addFile('./spa/custom-microlight.mjs')
+  await repoSelf.addFile('./spa/lexer.mjs')
+  await repoSelf.addFile('./spa/highlighter.mjs')
 
   await repoSelf.createCommit('something, at least.')
 
