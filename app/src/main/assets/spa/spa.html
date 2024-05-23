@@ -8,6 +8,7 @@
   <title>SPA</title>
 
   <link rel="stylesheet" href="./spa.css" async>
+  <link rel="stylesheet" href="./highlighter.css" async>
 </head>
 <body>
   <nav>
@@ -57,44 +58,44 @@
 
         <div id="init-tab" class="container">
           <label for="init-name">Name</label>
-          <input type="text" name="init-name">
+          <input type="text" id="init-name">
 
           <br>
 
           <label for="init-dir">Dir</label>
-          <input type="text" name="init-dir">
+          <input type="text" id="init-dir">
 
           <br>
 
           <label for="init-gitignore">Git Ignore</label>
-          <select name="init-gitignore">
+          <select id="init-gitignore">
             <option>None</option>
           </select>
         </div>
 
         <div id="clone-tab" class="container">
           <label for="clone-url">URL</label>
-          <input type="url" name="clone-url">
+          <input type="url" id="clone-url">
 
           <br>
 
           <label for="clone-name">Name</label>
-          <input type="text" name="clone-name">
+          <input type="text" id="clone-name">
 
           <br>
 
           <label for="clone-dir">Dir</label>
-          <input type="text" name="clone-dir">
+          <input type="text" id="clone-dir">
         </div>
 
         <div id="import-tab" class="container">
           <label for="import-dir">Dir</label>
-          <input type="text" name="import-dir">
+          <input type="text" id="import-dir">
 
           <br>
 
           <label for="import-name">Name</label>
-          <input type="text" name="import-name">
+          <input type="text" id="import-name">
         </div>
       </div>
 
@@ -124,5 +125,7 @@
   <span id="script-container">
     <script src="./index.mjs" type="module" async defer></script>
   </span>
+
+  <!-- A HTML comment -->
 </body>
 </html>
