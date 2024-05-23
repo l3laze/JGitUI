@@ -286,11 +286,10 @@ nav {
         margin: 0;
         padding: 0;
         display: inline;
-        inline-size: min-content;
       }
 
       &::before {
-        width: 2.5rem;
+        width: 5ch;
         content: counter(line);
         display: inline-block;
         color: #CCC;
