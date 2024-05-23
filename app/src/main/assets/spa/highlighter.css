@@ -1,0 +1,43 @@
+.token-curly {
+  color: gold;
+}
+
+.token-square {
+  color: aqua;
+}
+
+.token-parentheses {
+  color: violet;
+}
+
+.token-operator {
+  color: lightskyblue;
+}
+
+.token-string {
+  color: darksalmon;
+}
+
+.token-comment {
+  color:mediumseagreen;
+}
+
+.token-word {
+  color: white;
+}
+
+.token-keyword {
+  color: deepskyblue;
+}
+
+.token-method {
+  color: palegoldenrod;
+}
+
+.token-regex {
+  color: tomato;
+}
+
+.token-template {
+  color:cornflowerblue;
+}
