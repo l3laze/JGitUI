@@ -26,11 +26,11 @@
   color: white;
 }
 
-.token-keyword {
+.token-keyword, .token-escaped {
   color: deepskyblue;
 }
 
-.token-method {
+.token-native {
   color: palegoldenrod;
 }
 
