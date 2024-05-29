@@ -361,7 +361,6 @@ async function initApp () {
   await repoSelf.addFile('./spa/spa.css')
   await repoSelf.addFile('./spa/Spa.mjs')
   await repoSelf.addFile('./spa/MainActivity.java')
-  await repoSelf.addFile('./spa/nanochess.js')
   await repoSelf.addFile('./spa/thousand.js')
   await repoSelf.addFile('./spa/custom-microlight.mjs')
   await repoSelf.addFile('./spa/lexer.mjs')
