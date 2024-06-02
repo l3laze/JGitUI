@@ -11,9 +11,13 @@ const regesc = /\E\S\C/
 const esc = '\E\S\Caped'
 
 /*
- * StandardJS or ESLint or VSCode does not
- *   know the v flag yet. Usage causes
- *   linter to throw invalid regex error.
+ * TODO: Update to sugmydiv once Chrome/Standard adds 'v'.
+ *
+ * Note: Chrome and StandardJS do not support the regex
+ *   v flag yet. Usage causes Standard to throw an invalid
+ *   regex error, and Chrome just fails to load the page.
+ *
+ *   'digmysuv' is another option once that is supported.
  */
 const er1 = /(?<brain>brain(?!(?:fart)))/sugmydi.test('brainfart')
 const er2 = /(?<brain>brain(?!(?:fart)))/sugmydi.test('brainwave')
@@ -29,6 +33,7 @@ function lexer (text, keywordLanguages = ['html', 'css', 'js']) {
   let ch = 1
   let prev1
   let prev2
+  let prevToken
   let lastTokenType
   let lexical = {}
   let token = {
@@ -52,6 +57,11 @@ function lexer (text, keywordLanguages = ['html', 'css', 'js']) {
   const tokens = []
 
   const lexicalType = [
+    {
+      identify: () => token.type === 'regex' && /[digmysuv]/.test(ch),
+      type: 'regex-flag',
+      endOf: () => !/[sugmydiv]/.test(ch)
+    },
     {
       identify: () => /\w/.test(ch),
       type: 'word',
@@ -103,9 +113,14 @@ function lexer (text, keywordLanguages = ['html', 'css', 'js']) {
       endOf: () => (text[offset - 2] === '*' && prev1 === '/')
     },
     {
-      identify: () => (ch === '/' && prev1 !== '\\'),
+      identify: () => (ch === '/' && prev1 !== '\\') && ([
+        'whitespace',
+        'newline',
+        'operator',
+        'separator'
+      ].includes(prevToken?.type) || /[{([]/.test(prev1)) && prev1 !== '<',
       type: 'regex',
-      endOf: () => (/[.}\])/]/.test(ch) && /[\s\w]/.test(next1)) || prev1 === '\n'
+      endOf: () => (prev1 === '/' && (token.value.length > 1 || token.continued) && /[.,;[)\wdigmysuv]/.test(ch) && /[,;.\s\w]/.test(next1)) || prev1 === '\n'
     },
     {
       identify: () => (ch === '$' && next1 === '{'),
@@ -164,7 +179,11 @@ function lexer (text, keywordLanguages = ['html', 'css', 'js']) {
         }
       }
 
-      tokens.push(token)
+      if (lastTokenType === token.type && prevToken.value !== '\n') {
+        tokens[tokens.length - 1].value += token.value
+      } else {
+        tokens.push(token)
+      }
 
       if (!token.parent) {
         lastTokenType = [
@@ -178,6 +197,12 @@ function lexer (text, keywordLanguages = ['html', 'css', 'js']) {
         ].includes(token.type)
           ? lastTokenType
           : token.type
+
+        prevToken = {
+          value: token.value,
+          type: token.type
+        }
+        lastTokenType = token.type
 
         token = {
           value: ch,
