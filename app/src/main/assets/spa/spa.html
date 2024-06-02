@@ -135,9 +135,19 @@
       const olog = console.log
 
       console.log = (...message) => {
-        statusBar.value += message + '\n'
+        statusBar.value += (statusBar.value !== '' ? '\n' : '') + message
+        statusBar.scrollTop = statusBar.scrollHeight
 
         olog(...message)
+      }
+
+      const oerr = console.error
+
+      console.error = (...message) => {
+        statusBar.value += (statusBar.value !== '' ? '\n' : '') + message
+        statusBar.scrollTop = statusBar.scrollHeight
+
+        oerr(...message)
       }
     </script>
 
