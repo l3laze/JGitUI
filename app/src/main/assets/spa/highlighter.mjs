@@ -16,7 +16,6 @@ class Highlighter {
     let newLine
     let codeLine = document.createElement('code')
     let codeSpan
-    let mapped
 
     codeLine.classList.add('has-spaces')
 
@@ -28,8 +27,9 @@ class Highlighter {
 
         codeSpan.classList.add(`token-${t.type}`)
 
-        mapped = '' + t.value
-        codeSpan.appendChild(document.createTextNode(mapped + zeroWidthSpace))
+        ;['word', 'keyword', 'native', 'comment', 'string', 'regex'].includes(t.type)
+          ? codeSpan.appendChild(document.createTextNode(t.value.replace(/([\s_.,;:&|\])>}+-])/g, `$1${zeroWidthSpace}`)))
+          : codeSpan.appendChild(document.createTextNode(t.value + zeroWidthSpace))
 
         codeLine.appendChild(codeSpan)
       } else {
