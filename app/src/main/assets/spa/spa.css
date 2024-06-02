@@ -446,7 +446,13 @@ footer {
   #status-bar {
     width: 100%;
     height: 100%;
-    padding: 0.25rem
+    padding: 0.25rem;
+    resize: none;
+    overflow: hidden;
+
+    &:focus-within {
+      overflow: auto;
+    }
   }
 }
 
