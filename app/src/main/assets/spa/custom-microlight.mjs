@@ -1,8 +1,5 @@
 'use strict'
 
-import { lexer } from './lexer.mjs'
-import { Highlighter } from './highlighter.mjs'
-
 const _window = window
 const _document = document
 const appendChild = 'appendChild'
