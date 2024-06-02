@@ -117,13 +117,31 @@
   </div>
 
   <footer>
-    <ul>
-      <li>Toe</li>
-    </ul>
+    <textarea id="status-bar" placeholder="Status Bar"></textarea>
   </footer>
 
   <span id="script-container">
-    <script src="./index.mjs" type="module" async defer></script>
+    <script>
+      const statusBar = document.getElementById('status-bar')
+  
+      window.onerror = (event, source, lineno, colno, error) => {
+        statusBar.value += `Unhandled error: ${error}`
+      }
+
+      window.onunhandledrejection = event => {
+        statusBar.value += `Unhandled Promise rejection: ${event.reason}`
+      }
+
+      const olog = console.log
+
+      console.log = (...message) => {
+        statusBar.value += message + '\n'
+
+        olog(...message)
+      }
+    </script>
+
+<script src="./index.mjs" type="module" async defer></script>
   </span>
 
   <!-- A HTML comment -->
