@@ -2,7 +2,7 @@
   color: gold;
 }
 
-.token-square {
+.token-square, .token-regex-flag {
   color: aqua;
 }
 
