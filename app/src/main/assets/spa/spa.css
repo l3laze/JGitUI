@@ -8,6 +8,23 @@
   margin: 0;
   user-select: none;
   outline: none;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0 255 255 / 25%);
+  }
+
+  &::-webkit-scrollbar-track {
+    border-left: 1px solid rgba(255 255 255 / 30%);
+  }
+
+  &::-webkit-scrollbar-corner {
+    display: none;
+  }
 }
 
 body {
@@ -17,42 +34,53 @@ body {
   font-size: 14px;
   font-family: 'Courier New', Courier, monospace;
   text-rendering: optimizelegibility;
+
+  /* https://issues.chromium.org/issues/41417806#comment18
+   * https://issues.chromium.org/issues/41417806#comment23
+   * Fix PgUp/PgDn causing refresh-persistent alignment bug.
+   */
+
+  position:fixed;
+  inset: 0;
+  overscroll-behavior: none;
 }
 
 /* Menu */
 
 nav {
   background-color: black;
-  width: 100%;
   
   .nav-bar {
     list-style-type: none;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 2.5rem auto repeat(2, 2.5rem);
+    grid-template-rows: 1fr;
+    grid-gap: 0;
+    width: 100%;
 
     #nav-title {
       font-size: 1rem;
     }
-
-    #nav-back-btn {
-      visibility: hidden;
-    }
-  
-    #nav-search-btn {
-      position: absolute;
-      font-size: 1.25rem;
-      right: 2rem;
-      background-color: transparent;
-    }
-  
-    #nav-hamburger {
-      position: absolute;
-      right: 0;
-      background-color: black;
-    }
   
     #nav-back-btn, #nav-search-btn, #nav-hamburger {
       cursor: pointer;
+    }
+
+    #nav-back-btn {
+      visibility: hidden;
+      color: white;
+    }
+  
+    #nav-search-btn {
+      font-size: 1.25rem;
+      height: 2.15rem;
+      margin-top: -0.1rem;
+      padding-bottom: 0.2rem;
+    }
+  
+    #nav-hamburger {
+      background-color: black;
+      height: 2.15rem;
     }
   
     .nav-item {
@@ -73,9 +101,10 @@ nav {
   }
 
   #nav-search-cancel {
-    content: '&mult;';
-    border: 1px solid black;
-    border-radius: 50%;
+    content: '&#x24E7;';
+
+    /* border: 1px solid black;
+    border-radius: 50%; */
     color: black;
     position: absolute;
     right: 0.5rem;
@@ -102,6 +131,7 @@ nav {
     line-height: 2rem;
     margin-top: 0.25rem;
     padding-left: 0.8rem;
+    list-style-type: none;
 
     .dropdown-item {
       width: 100%;
@@ -117,7 +147,6 @@ nav {
 }
 
 /* Add Repo Dialog */
-
 #add-dialog {
   width: 100vw;
   height: 100vh;
@@ -128,6 +157,13 @@ nav {
   top: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  background-color: black;
+  color: white;
+  border: none;
+
+  > h2 {
+    margin-top: 8px;
+  }
 
   > #close-dialog-btn {
     position: absolute;
@@ -148,16 +184,17 @@ nav {
       & > li {
         display: inline-block;
         border-bottom: 1px solid black;
-        background-color: white;
-        color: black;
+        background-color: black;
+        color: white;
         padding: 0 0.5rem;
 
         &:not(:first-of-type) {
-          border-left: 1px solid black;
+          border-left: 1px solid lightgray;
         }
 
         &.active {
-          filter: invert(1);
+          color: black;
+          background-color: darkgray;
           font-weight: bold;
           border-bottom: 0;
         }
@@ -197,108 +234,136 @@ nav {
   }
 }
 
+#view-container {
+  height: 100%;
+}
+
 /* Repo View */
-
-/* stylelint-disable-next-line no-descending-specificity */
-#repo-list > li {
-  padding: 0.5rem;
-  background-color: lightgray;
-  border-bottom: 4px solid black;
-  cursor: pointer;
-}
-
-#repo-file-list {
-  display: none;
-
-  /* stylelint-disable-next-line no-descending-specificity */
-  > li {
-    padding: 0.25rem 0.5rem;
-    cursor: pointer;
-
-  /* stylelint-disable-next-line no-descending-specificity */
-    &:hover {
-      background-color: lightgray;
-    }
-  }
-}
-
-#repo-file-view {
-  margin: 0;
-  padding-top: 0.5rem;
-  width: 100vw;
-  height: calc(100vh - 6.5rem);
-  font-size: 1rem;
-  font-family: monospace;
-  overflow: auto;
-  display: none;
-  outline: none;
-  user-select: text;
+#repo-view-container {
   background-color: black;
   color: white;
-  line-height: 1.3rem;
-  position: fixed;
-  border-top: 1px solid silver;
+  height: 100%;
 
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 10px;
-  }
+  #repo-list {
+    background-color: black;
+    width: 100%;
 
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0 255 255 / 25%);
-  }
-
-  &::-webkit-scrollbar-track {
-    border-left: 1px solid rgba(255 255 255 / 30%);
-  }
-
-  &::-webkit-scrollbar-corner {
-    display: none;
-  }
-
-  &> code {
-    display: block;
-    margin: 0;
-    margin-bottom: 60vh;
-    padding: 0;
-    user-select: text;
-    counter-reset: line;
-    font-size: 12px;
-    line-height: 1.3;
-    white-space: pre;
-    padding-right: 0.5rem;
-
-    * {
-      user-select: text;
+    /* stylelint-disable-next-line no-descending-specificity */
+    &> li {
+      padding: 0.5rem;
+      border-bottom: 4px solid black;
+      cursor: pointer;
     }
+  }
+
+  #repo-file-list {
+    display: none;
+
+    /* stylelint-disable-next-line no-descending-specificity */
+    &> li {
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+
+    /* stylelint-disable-next-line no-descending-specificity */
+      &:hover {
+        background-color: lightgray;
+        color: black;
+      }
+    }
+  }
+
+  #repo-file-view {
+    margin: 0;
+    padding-top: 0.5rem;
+    width: 100vw;
+    height: calc(100vh - 9.5ch);
+    font-family: monospace;
+    overflow: auto;
+    display: none;
+    outline: none;
+    user-select: text;
+    background-color: black;
+    color: white;
+    line-height: 1.3rem;
+    position: fixed;
 
     &> code {
-      margin: 0;
-      padding: 0;
       display: block;
-      counter-increment: line;
-      margin-left: calc(1rem + max(4rem, var(--spaces) * 0.5rem));
-      text-indent: calc(-1rem + min(-4rem, var(--spaces) * -0.5rem));
+      margin: 0;
+      margin-bottom: 60vh;
+      padding: 0;
+      user-select: text;
+      counter-reset: line;
+      font-size: 12px;
+      line-height: 1.3;
+      white-space: pre;
+      padding-right: 0.5rem;
 
-      /* width: calc(100vw - 3.5rem - calc(var(--spaces) * 0.5rem)); */
-
-      &> span {
-        margin: 0;
-        padding: 0;
-        display: inline;
+      * {
+        user-select: text;
       }
 
-      &::before {
-        width: 5ch;
-        content: counter(line);
-        display: inline-block;
-        color: #CCC;
-        user-select: none;
-        text-align: right;
+      &> code {
         margin: 0;
         padding: 0;
-        margin-right: 1rem;
+        display: block;
+        counter-increment: line;
+        margin-left: calc(5ch + 1rem);
+        text-indent: calc(-5ch - 1rem);
+
+        /* width: calc(100vw - 3.5rem - calc(var(--spaces) * 0.5rem)); */
+
+        &> span {
+          margin: 0;
+          padding: 0;
+          display: inline;
+        }
+
+        &::before {
+          width: 5ch;
+          content: counter(line);
+          display: inline-block;
+          color: #CCC;
+          user-select: none;
+          text-align: right;
+          margin: 0;
+          padding: 0;
+          margin-right: 1rem;
+        }
       }
+    }
+  }
+
+  #file-edit-view {
+    margin: 0;
+    padding-top: 0.5rem;
+    padding-right: 0.5rem;
+    padding-bottom: calc(60vh - 1rem);
+    width: calc(100vw - 5ch - 1rem - 0.5rem);
+    height: calc(100vh - 6.5ch);
+    font-size: 12px;
+    line-height: 1.3;
+    font-family: monospace;
+    overflow: auto;
+    outline: none;
+    background-color: transparent;
+    color: transparent;
+    caret-color: white;
+    position: absolute;
+    left: calc(5ch + 1rem);
+    top: calc(4.5rem + (1rem / 10vh));
+    border: none;
+    display: none;
+    z-index: 1;
+    resize: none;
+    white-space: pre;
+
+    &::selection {
+      background-color: ghostwhite;
+    }
+
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 }
@@ -416,12 +481,14 @@ nav {
       text-align: center;
     }
 
+    /* stylelint-disable-next-line no-descending-specificity */
     &[title="wrap text"] span:not(.file-view-bar-button), &[title="wrap text"] input[type="checkbox"] {
       /* margin-top: 4px; */
       vertical-align: top;
     }
 
     &[title="line height"] {
+      /* stylelint-disable-next-line no-descending-specificity */
       &> label > span:nth-child(2) {
         font-size: 1.5em;
       }
@@ -433,27 +500,40 @@ footer {
   position: absolute;
   bottom: 0;
   width: 100%;
+  height: 4rem;
   color: white;
   background: black;
-  border-top: 1px solid silver;
-  padding-bottom: 1px;
+  display: none;
 
-  &:focus-within {
-    height: 96%;
+  #status-handle {
+    height: 4px;
+    background-color: skyblue;
+  }
+
+  #status-titlebar {
+    border-bottom: 1px solid darkgray;
+    padding: 0.25rem;
   }
 
   #status-bar {
     width: 100%;
-    height: 2.2rem;
-    padding: 0.25rem;
+    height: calc(100% - 2rem - 4px);
     resize: none;
-    overflow-x: hidden;
-
-    &:focus-within {
-      height: 100%;
-      overflow: auto;
-    }
+    background-color: black;
+    color: white;
+    font-family: monospace;
+    border: none;
+    padding: 0 0.5rem;
+    margin-top: 0.25rem;
   }
+}
+
+.resize-ns {
+  cursor: ns-resize;
+}
+
+.non-resizable {
+  display: none;
 }
 
 @media screen and (width < 601px) {

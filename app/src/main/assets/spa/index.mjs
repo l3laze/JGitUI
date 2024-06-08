@@ -67,7 +67,7 @@ async function initListeners () {
 
   window.addEventListener('click', (event) => {
     const searchIsOpen = window.getComputedStyle(searchBar).display !== 'none'
-    const isSearchBar = event.target.isEqualNode(searchBar)
+    const isSearchBar = event.target.isEqualNode(searchBar) || event.target.isEqualNode(searchCancelBtn)
 
     if (!isSearchBar && searchIsOpen) {
       searchBtn.click()
@@ -95,10 +95,10 @@ async function initListeners () {
     }
   })
 
-  $('#nav-search-cancel').addEventListener('click', (event) => {
-    searchBar.style.display = 'none'
+  searchCancelBtn.addEventListener('click', (event) => {
+    searchBar.value = ''
 
-    event.target.style.display = 'none'
+    searchBar.focus()
   })
 
   addDialog.addEventListener('keyup', (event) => {
@@ -115,10 +115,12 @@ async function initListeners () {
     event.preventDefault()
     addDialog.close()
 
-    const activeTab = $('#add-dialog > ul > li.active').textContent.toLowerCase()
+    const activeTab = $('#add-tab-controls > li.active').textContent.toLowerCase()
 
-    const submittedData = new FormData($('#add-repo-form'))
+    const submittedData = new FormData(document.getElementById('add-repo-form'))
     const fData = {}
+
+    console.log(JSON.stringify(submittedData))
 
     for (const e of submittedData.entries()) {
       if (e[0].indexOf(activeTab) !== -1) {
@@ -126,7 +128,7 @@ async function initListeners () {
       }
     }
 
-    console.log(activeTab, fData)
+    console.log(activeTab, JSON.stringify(fData))
 
     return false // prevent default behavior
   })
@@ -147,6 +149,114 @@ async function initListeners () {
     console.log('opening settings')
   })
 
+  $('#status-collapse').addEventListener('click', (event) => {
+    const current = event.target.textContent
+
+    event.target.textContent = current === '>' ? '˅' : '>'
+
+    const statusBar = $('#status-bar')
+    const statusHandle = $('#status-handle')
+
+    if (current === '˅') {
+      statusBar.style.display = 'none'
+
+      $('footer').style.height = '1.8rem'
+
+      statusHandle.style.display = 'none'
+
+      $('footer > hr.non-resizable').style.display = 'block'
+
+      $('footer > hr:not(.non-resizable)').style.display = 'none'
+    } else {
+      statusBar.style.display = 'block'
+
+      $('footer > hr.non-resizable').style.display = 'none'
+
+      $('footer > hr:not(.non-resizable)').style.display = 'block'
+
+      $('footer').style.height = '4rem'
+
+      statusHandle.style.display = 'block'
+    }
+  })
+
+  $('#status-clear').addEventListener('click', () => {
+    $('#status-bar').value = ''
+  })
+
+  /* Partially based on
+   * https://medium.com/the-z/making-a-resizable-div-in-js-is-not-easy-as-you-think-bda19a1bc53d
+   * at https://codepen.io/ZeroX-DG/pen/vjdoYe
+   */
+
+  function makeResizable (element, handle, minimum, maximum) {
+    let resizingElement = ''
+    let lastUpdated = Date.now()
+
+    const original = {
+      width: 0,
+      height: 0,
+      x: 0,
+      y: 0,
+      mouse_x: 0,
+      mouse_y: 0
+    }
+
+    const dir = resizingElement?.className?.split('-')[1]
+
+    function resizeElement (event) {
+      const timeDiff = Date.now() - lastUpdated
+
+      if (timeDiff < 2) {
+        return false
+      } else {
+        lastUpdated = Date.now()
+      }
+
+      const resizeDir = [
+        {
+          test: () => /[ns]{1,2}/.test(dir),
+          resizeBy: 'height'
+        }
+      ].find((t) => t.test()).resizeBy
+
+      const newHeight = original.height - (event.pageY - original.mouse_y)
+
+      if (newHeight > minimum && newHeight < maximum) {
+        resizingElement.style[resizeDir] = newHeight + 'px'
+      }
+    }
+
+    function stopResizing () {
+      resizingElement = ''
+
+      window.removeEventListener('mousemove', resizeElement)
+      window.removeEventListener('mouseup', stopResizing)
+    }
+
+    function startResizing (event) {
+      if (event.target?.id === handle.id) {
+        resizingElement = element
+
+        original.width = parseFloat(window.getComputedStyle(resizingElement, null).getPropertyValue('width').replace('px', ''))
+        original.height = parseFloat(window.getComputedStyle(resizingElement, null).getPropertyValue('height').replace('px', ''))
+        original.x = resizingElement.getBoundingClientRect().left
+        original.y = resizingElement.getBoundingClientRect().top
+        original.mouse_x = event.pageX
+        original.mouse_y = event.pageY
+
+        window.addEventListener('mousemove', resizeElement)
+        window.addEventListener('mouseup', stopResizing)
+      }
+    }
+
+    element.classList.toggle('resizable')
+
+    window.addEventListener('mousedown', startResizing)
+  }
+
+  makeResizable($('footer'), $('#status-handle'), '30', '480')
+
   addDialogTabs.forEach((t) => {
     t.addEventListener('click', (event) => {
       addDialogTabs.forEach((dialogTab) => dialogTab.classList.remove('active'))
@@ -161,16 +271,22 @@ async function initListeners () {
     })
   })
 
+  const editor = $('#file-edit-view')
+  const view = $('#repo-file-view')
+
   fvBarWrap.addEventListener('change', () => {
     if (window.getComputedStyle(codeElement).whiteSpace !== 'pre') {
       codeElement.style.whiteSpace = 'pre'
+      editor.style.whiteSpace = 'pre'
     } else {
       codeElement.style.whiteSpace = 'break-spaces'
+      editor.style.whiteSpace = 'break-spaces'
     }
   })
 
   fvBarLineHeight.addEventListener('change', () => {
     codeElement.style.lineHeight = fvBarLineHeight.value
+    editor.style.lineHeight = fvBarLineHeight.value
   })
 
   fvBarFontSize.addEventListener('change', () => {
@@ -181,6 +297,26 @@ async function initListeners () {
     }
 
     codeElement.style.lineHeight = ((window.getComputedStyle(codeElement).lineHeight) * 0.75).toString().substring(0, 3)
+
+    editor.style.fontSize = codeElement.style.fontSize
+    editor.style.lineHeight = codeElement.style.lineHeight
+  })
+
+  function syncScroll (from, to) {
+    to.scrollTop = from.scrollTop
+    to.scrollLeft = from.scrollLeft
+  }
+
+  editor.addEventListener('input', () => {
+    syncScroll(editor, view)
+  })
+
+  editor.addEventListener('scroll', () => {
+    syncScroll(editor, view)
+  })
+
+  view.addEventListener('scroll', () => {
+    syncScroll(view, editor)
   })
 
   window.App = App
@@ -336,6 +472,14 @@ async function openRepo (repoData) {
       if (window.getComputedStyle(fvMenuBar).display === 'none') {
         fvMenuBar.style.display = 'flex'
       }
+
+      const fvEditor = $('#file-edit-view')
+
+      fvEditor.style.display = 'block'
+
+      /* eslint-disable-next-line no-irregular-whitespace */
+      fvEditor.textContent = codeElement.textContent //.replace(/​/g, '')
+      fvEditor.textContent = fvEditor.textContent.slice(0, -1)
     })
   }
 
