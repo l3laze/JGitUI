@@ -359,7 +359,8 @@ nav {
     white-space: pre;
 
     &::selection {
-      background-color: ghostwhite;
+      background-color: white;
+      color: black;
     }
 
     &::-webkit-scrollbar {

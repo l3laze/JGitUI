@@ -11,8 +11,6 @@ class Highlighter {
     const text = element.textContent.replaceAll('\r\n', '\n')
     const tokens = this.lexer(text)
 
-    console.log(tokens)
-
     const zeroWidthSpace = '​' // &ZeroWidthSpace;
 
     let newLine
@@ -25,7 +23,7 @@ class Highlighter {
 
     for (const t of tokens) {
       if (t.value === '') {
-        console.log('Ignoring empty token')
+        continue
       } else if (t.value !== '\n') {
         codeSpan = document.createElement('span')
 

@@ -5,6 +5,8 @@ import $ from './jQuery-like.mjs'
 // import highlight from './custom-microlight.mjs'
 import { Highlighter } from './highlighter.mjs'
 
+/* global MutationObserver */
+
 let App
 
 async function initListeners () {
@@ -319,6 +321,48 @@ async function initListeners () {
     syncScroll(view, editor)
   })
 
+  editor.addEventListener('keydown', (event) => {
+    const keys = ['PageDown', 'PageUp', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+
+    if (keys.indexOf(event.key) === -1) {
+      return
+    }
+
+    let velocity = 0
+
+    if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+      velocity = -1
+    } else if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+      velocity = 1
+    }
+
+    if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && ((!event.ctrlKey && editor.textContent[editor.selectionStart + velocity] === '​') || (event.ctrlKey && editor.textContent[editor.selectionStart] === '​'))) {
+      if (!event.shiftKey) {
+        editor.selectionStart += velocity
+        editor.selectionEnd = editor.selectionStart
+      } else {
+        if (velocity < 0) {
+          editor.selectionStart += velocity
+        } else {
+          editor.selectionStart += velocity
+        }
+      }
+    }
+
+    if (['PageUp', 'PageDown'].includes(event.key)) {
+      if (!event.ctrlKey) {
+        const elStyle = window.getComputedStyle(event.target)
+        const pageSize = Math.ceil(parseInt(elStyle.parentElement.height) / parseInt(elStyle.lineHeight)) + (parseInt(elStyle.height) % parseInt(elStyle.lineHeight))
+
+        // console.log(pageSize)
+
+        event.target.scrollTop = event.target.scrollTop + (pageSize * velocity)
+
+        event.preventDefault()
+      }
+    }
+  })
+
   window.App = App
 }
 
@@ -478,7 +522,7 @@ async function openRepo (repoData) {
       fvEditor.style.display = 'block'
 
       /* eslint-disable-next-line no-irregular-whitespace */
-      fvEditor.textContent = codeElement.textContent //.replace(/​/g, '')
+      fvEditor.textContent = codeElement.textContent // .replace(/​/g, '')
       fvEditor.textContent = fvEditor.textContent.slice(0, -1)
     })
   }
