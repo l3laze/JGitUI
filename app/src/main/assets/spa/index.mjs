@@ -5,8 +5,6 @@ import $ from './jQuery-like.mjs'
 // import highlight from './custom-microlight.mjs'
 import { Highlighter } from './highlighter.mjs'
 
-/* global MutationObserver */
-
 let App
 
 async function initListeners () {
@@ -349,18 +347,18 @@ async function initListeners () {
       }
     }
 
-    if (['PageUp', 'PageDown'].includes(event.key)) {
-      if (!event.ctrlKey) {
-        const elStyle = window.getComputedStyle(event.target)
-        const pageSize = Math.ceil(parseInt(elStyle.parentElement.height) / parseInt(elStyle.lineHeight)) + (parseInt(elStyle.height) % parseInt(elStyle.lineHeight))
-
-        // console.log(pageSize)
-
-        event.target.scrollTop = event.target.scrollTop + (pageSize * velocity)
-
-        event.preventDefault()
-      }
+    if (event.key === 'PageUp' && event.ctrlKey) {
+      event.target.scrollTo(0, 0)
     }
+
+    window.setTimeout(() => {
+      const selStart = event.target.selectionStart
+
+      event.target.selectionStart = event.target.selectionEnd
+      event.target.blur()
+      event.target.focus()
+      event.target.selectionStart = selStart
+    }, 0)
   })
 
   window.App = App
