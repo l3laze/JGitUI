@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Document</title>
+
+  <link rel="stylesheet" href="./highlighter.css">
+
   <style>
     * {
       padding: 0;
@@ -27,8 +31,8 @@
       z-index: 2;
       position: absolute;
       top: 0;
+      bottom: 0;
       left: 5.5ch;
-      height: calc(100vh);
       width: calc(100% - 5.5ch);
       resize: none;
       font-size: 1rem;
@@ -37,21 +41,14 @@
       border: none;
       background-color: transparent;
       color: transparent;
-      caret-color: red;
+      caret-color: white;
       white-space: pre;
       overflow-y: scroll;
       padding-bottom: calc(100vh - 2.35rem);
 
-      /* &::-webkit-scrollbar {
-        background-color: aqua;
-        opacity: 0.9;
-        width: 1rem;
+      &::-webkit-scrollbar {
+        background-color: rgba(0 255 255 / 30%);
       }
-
-      &::-webkit-scrollbar-corner {
-        color: red;
-        background-color: darkcyan;
-      } */
 
       &::selection {
         color: black;
@@ -61,7 +58,7 @@
 
     #line-numbers {
       width: 5.5ch;
-      height: calc(100vh);
+      height: calc(100vh - 0.1rem);
       position: absolute;
       left: 0;
       text-align: right;
@@ -77,14 +74,13 @@
     }
   
     #code-container {
-      overflow-x: scroll;
-      overflow-y: hidden;
+      overflow: scroll hidden;
       position: absolute;
       left: 5.5ch;
       top: 0;
-      height: calc(100vh - 1.8rem);
+      height: calc(100vh - 0.1rem);
       white-space: pre;
-      width: calc(100% - 7.5ch);
+      width: calc(100vw - 5.5ch - 0.75rem);
       padding-right: 1rem;
       padding-bottom: calc(100vh - 1.3rem);
 
@@ -97,10 +93,6 @@
 
         &> code {
           display: block;
-          
-          &> span:nth-child(2) {
-            margin-left: 4.5ch;
-          }
         }
       }
     }
@@ -112,6 +104,8 @@
   <pre id="code-container"><code></code></pre>
 
   <script type="module">
+    import { Highlighter } from './highlighter.mjs'
+
     // Based on https://stackoverflow.com/a/6375580/7665043
     function makeHttpObject() {
       try {
@@ -169,7 +163,6 @@
       }
 
       for (let line = 0; line < code.length; line++) {
-        const codeLine = document.createElement('code')
         const lineNo = document.createElement('span')
 
         lineNo.classList.add('line-number')
@@ -178,24 +171,14 @@
         lineNo.appendChild(document.createElement('br'))
 
         numbers.appendChild(lineNo)
-
-        const codeSpan = document.createElement('span')
-
-        if (code[line] !== '') {
-          codeSpan.appendChild(document.createTextNode(code[line]))
-
-          codeLine.appendChild(codeSpan)
-        } else {
-          codeLine.appendChild(document.createTextNode('\n'))
-        }
-        container.appendChild(codeLine)
-
-        if (editor.value !== '') {
-          editor.value += '\n'
-        }
-
-        editor.value += code[line]
       }
+
+      container.textContent = code.join('\n')
+      editor.textContent = code.join('\n')
+
+      const highlighter = new Highlighter()
+
+      highlighter.highlight(container)
     }
 
     window.addEventListener('DOMContentLoaded', () => {
