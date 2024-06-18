@@ -22,10 +22,10 @@ const esc = '\E\S\Caped'
 const er1 = /(?<brain>brain(?!(?:fart)))/sugmydi.test('brainfart')
 const er2 = /(?<brain>brain(?!(?:fart)))/sugmydi.test('brainwave')
 
-console.log(et)
-console.log(er1)
-console.log(er2)
-console.log(regesc.test(esc))
+// console.log(et)
+// console.log(er1)
+// console.log(er2)
+// console.log(regesc.test(esc))
 
 function lexer (text, keywordLanguages = ['html', 'css', 'js']) {
   let offset = 0

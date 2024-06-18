@@ -11,7 +11,7 @@ const textShadow = ';text-shadow:'
 const _3px_0px_5 = '3px 0px 5'
 const brace = ')'
 const highlightColors = ['none', 'skyblue', 'orchid', 'darkorange', 'olivedrab']
-const color = ';color:'
+const color = 'color:'
 /* const defaultKeywords =
   'abstract,alias,and,arguments,array,asm,assert,async,await,'
   + 'base,begin,bool,boolean,break,byte,'
@@ -85,7 +85,7 @@ async function highlight (el, hashAsComment = false) {
 
   const zeroWidthSpace = '​' // &ZeroWidthSpace;
 
-  el.innerHTML = '' // clean the node
+  el.childNodes.forEach((c) => el.removeChild(c)) // clean the node
 
   // running through characters and highlighting
   /* eslint-disable-next-line no-sequences */
@@ -136,19 +136,19 @@ async function highlight (el, hashAsComment = false) {
           // 1: keywords
           color + highlightColors[tokenIndex] +
           textShadow + _3px_0px_5 + 4 + pxColor + alpha * 0.7 + '),' +
-          _3px_0px_5 + 2 + pxColor + alpha * 0.4 + brace,
+          _3px_0px_5 + 2 + pxColor + alpha * 0.4 + brace + ';',
           // 2: punctuation
           color + highlightColors[tokenIndex] +
           textShadow + _3px_0px_5 + 2 + pxColor + alpha / 2 + '),' +
-          _3px_0px_5 + pxColor + alpha / 4 + brace,
+          _3px_0px_5 + pxColor + alpha / 4 + brace + ';',
           // 3: strings and regexps
           color + highlightColors[tokenIndex] +
           textShadow + _3px_0px_5 + pxColor + alpha / 3 + '),-' +
-          _3px_0px_5 + pxColor + alpha * 0.4 + brace,
+          _3px_0px_5 + pxColor + alpha * 0.4 + brace + ';',
           // 4: comments
           color + highlightColors[tokenIndex] +
           textShadow + _3px_0px_5 + 4 + pxColor + alpha / 2 + '),-' +
-          _3px_0px_5 + pxColor + alpha / 4 + brace
+          _3px_0px_5 + pxColor + alpha / 4 + brace + ';'
         ][tokenIndex])
 
         // node.setAttribute('id', `code-span-${spanCount}`)
@@ -168,6 +168,8 @@ async function highlight (el, hashAsComment = false) {
         } else {
           node[appendChild](_document.createTextNode(token))
         }
+
+        // console.log(node)
 
         codeLine[appendChild](_document.createElement('span').appendChild(_document.createTextNode(zeroWidthSpace)))
       }

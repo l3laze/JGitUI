@@ -19,7 +19,9 @@ class Highlighter {
 
     codeLine.classList.add('has-spaces')
 
-    element.innerHTML = ''
+    for (const c of element.childNodes) {
+      element.removeChild(c)
+    }
 
     for (const t of tokens) {
       if (t.value === '') {
