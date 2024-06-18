@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+  <meta name="description" content="A simplified code editor.">
+  <title>Document</title>
+
+  <link rel="stylesheet" href="./highlighter.css" defer>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-size: 14px;
+      font-family: monospace;
+      line-height: 1.3rem;
+    }
+
+    body {
+      background-color: black;
+      color: white;
+      overflow: hidden;
+    }
+
+    #lines {
+      box-sizing: border-box;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 7ch;
+      padding-right: 2ch;
+      height: calc(100vh);
+      padding-bottom: calc(100vh - 1.3rem);
+      user-select: none;
+      background-color: black;
+      color: white;
+      z-index: 2;
+      overflow-x: hidden;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      &> span {
+        box-sizing: content-box;
+        display: inline-block;
+        width: 100%;
+        text-align: right;
+      }
+    }
+
+    #editor {
+      box-sizing: border-box;
+      position: absolute;
+      top: 0;
+      left: 7ch;
+      width: calc(100vw - 7ch);
+      height: calc(100vh);
+      padding-bottom: calc(100vh - 2.6rem);
+      background: 0 0;
+      color: transparent;
+      caret-color: red;
+      z-index: 1;
+      outline: none;
+      border: none;
+      white-space: pre;
+      resize: none;
+      overflow: scroll;
+    }
+
+    #colorized {
+      box-sizing: border-box;
+      position: relative;
+      top: 0;
+      left: 7ch;
+      width: calc(100vw - 7ch);
+      height: calc(100vh);
+      padding-right: 10vw;
+      padding-bottom: calc(100vh - 1.3rem);
+      background: 0 0;
+      z-index: 0;
+      user-select: none;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="lines"></div>
+  <textarea id="editor" spellcheck="false" aria-label="editor"></textarea>
+  <pre id="colorized"><code></code></pre>
+
+  <script type="module" defer>
+    import { Highlighter } from './highlighter.mjs'
+
+    const colorized = document.querySelector('#colorized')
+    const lines = document.getElementById('lines')
+    const editor = document.getElementById('editor')
+    const numbers = document.getElementById('lines')
+    const text = document.documentElement.outerHTML
+
+    editor.innerHTML = text
+
+    const source = editor.value.replaceAll('​', '').split('\n')
+
+    lines.childNodes.forEach((c) => lines.removeChild((c)))
+
+    for (let lineNo = 0; lineNo < source.length; lineNo++) {
+      const lineNumber = document.createElement('span')
+
+      lineNumber.appendChild(document.createTextNode(lineNo + 1))
+
+      lines.appendChild(lineNumber)
+
+      lines.appendChild(document.createElement('br'))
+    }
+
+    colorized.textContent = editor.textContent
+
+    const highlighter = new Highlighter()
+
+    highlighter.highlight(colorized)
+
+    editor.addEventListener('scroll', () => {
+      colorized.scrollTop = editor.scrollTop
+      colorized.scrollLeft = editor.scrollLeft
+
+      numbers.scrollTop = editor.scrollTop
+    })
+
+    numbers.addEventListener('scroll', () => {
+      colorized.scrollTop = numbers.scrollTop
+
+      editor.scrollTop = numbers.scrollTop
+    })
+
+    numbers.addEventListener('click', (event) => {
+      
+
+      const line = event.target.textContent
+      const text = editor.textContent.split('\n')
+      const lineText = text[line - 1]
+
+      if (line < text.length + 1) {
+        // Idea based on https://dev.to/phuocng/highlight-the-current-line-in-a-text-area-36aj
+        const beforeCaret = text
+          .slice(0, line - 1 > 0 ? line - 1 : 0)
+          .join('\n')
+
+        const afterCaret = text
+          .slice(line - 1 > 0 ? line - 1 : 0)
+          .join('\n')
+
+        let caretTo = beforeCaret.length
+
+        if (line > 1) {
+          caretTo++
+        }
+
+        editor.selectionStart = caretTo
+        editor.selectionEnd = caretTo + (afterCaret.indexOf('\n') > -1
+          ? afterCaret.indexOf('\n') 
+          : afterCaret.length)
+      }
+
+      editor.focus()
+    })
+  </script>
+</body></html>
