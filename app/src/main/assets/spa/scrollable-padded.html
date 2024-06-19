@@ -315,12 +315,8 @@
 
           if (lineElem.classList.contains('collapsed')) {
             event.target.textContent = '>'
-
-            mode = 'none'
           } else {
             event.target.textContent = '⌵'
-
-            mode = 'block'
           }
 
           const lineNo = parseInt(lineElem.textContent)
@@ -328,20 +324,25 @@
 
           console.log(`Toggling ${colorized.children[lineNo].textContent.replace('\n', '')} = ${lineElem.classList}`)
 
-          for (let line = lineNo; line < collapseToLine + 1; line++) {
-            const lineElement = colorized.children[line]
+          for (let line = lineNo; line <= collapseToLine; line++) {
+            let lineElement = numbers.children[line]
+            let codeElement = colorized.children[line]
 
-            if (line > lineNo && lineElement.classList.contains('collapsed')) {
-              console.log(`Skipping ${colorized.children[line].textContent.replace('\n', '')} = ${lineElement.classList}`)
+            if (lineElement.classList.contains('collapsed')) {
+              lineElement.classList.toggle('collapsible-collapsed')
+              codeElement.classList.toggle('collapsible-collapsed')
 
-              line = parseInt(lineElement.getAttribute('collapse-to'))
+              const endOf = parseInt(lineElement.getAttribute('collapse-to'))
+              console.log(`Skipped to ${endOf + 1}`)
+
+              line = endOf
             } else {
               if (line < lineNo + 4) {
                 console.log(`Toggling ${colorized.children[line].textContent.replace('\n', '')} = ${lineElement.classList}`)
               }
 
-              numbers.children[line].classList.toggle('collapsible-collapsed')
-              colorized.children[line].classList.toggle('collapsible-collapsed')
+              lineElement.classList.toggle('collapsible-collapsed')
+              codeElement.classList.toggle('collapsible-collapsed')
             }
           }
         }
