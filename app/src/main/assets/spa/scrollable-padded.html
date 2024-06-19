@@ -78,6 +78,7 @@
       background-color: transparent;
       color: transparent;
       caret-color: red;
+      overflow: hidden;
     }
 
     #lines {
@@ -103,7 +104,32 @@
         display: block;
         padding-left: 1rem;
         padding-right: 2rem;
+
+        &.collapsible {
+          padding: 0;
+        }
+
+        &.collapsed {
+          &>.collapser {
+            padding-left: 1.45rem;
+          }
+        }
+
+        &.collapsible-collapsed {
+          display: none;
+        }
+
+        &>.collapser {
+          padding-left: 1.25rem;
+          padding-right: 0rem;
+          user-select: none;
+          cursor: pointer;
+        }
       }
+    }
+
+    .collapsible-collapsed {
+      display: none;
     }
   </style>
 </head>
@@ -118,6 +144,8 @@
   </div>
 
   <script type="module">
+    'use strict'
+
     import { Highlighter } from './highlighter.mjs'
 
     const shell = document.querySelector('#shell')
@@ -127,8 +155,66 @@
     const editor = document.getElementById('editor')
     const numbers = document.getElementById('lines')
 
+    let source // editor.value after ZeroWidthSpace is replaced with '', split by '\n'
+    // let text // editor.textContent.split('\n')
+    // let maxLineNumberLength // Length in chars of the max line number.
+
+    const highlighter = new Highlighter()
+
+    async function makeCollapsible () {
+      const marked = {}
+
+      for (let lineNo = 0; lineNo < source.length; lineNo++) {
+        if (typeof marked[lineNo] === 'undefined') {
+          const item = colorized.children[lineNo]
+          const nextLine = colorized.children[lineNo + 1]
+
+          const indentedBy = parseInt(item.getAttribute('data-spaces'))
+          const nextIndent = parseInt(nextLine?.getAttribute('data-spaces')) ?? undefined
+
+          // console.log(`"${item.textContent}", "${nextLine.textContent}", "${indentedBy}", "${nextIndent}"`)
+
+          if (item.textContent === '\n' || (typeof nextIndent === 'number' && nextIndent <= indentedBy)) {
+            marked[lineNo] = true
+
+            continue
+          }
+
+          let endOf
+          
+          for (let childNo = lineNo + 1; childNo < colorized.children.length; childNo++) {
+            const lineSpaces = parseInt(colorized.children[childNo].getAttribute('data-spaces'))
+            if (colorized.children[childNo].textContent !== '\n' && lineSpaces === indentedBy) {
+              endOf = childNo
+              break
+            }
+          }
+
+          if (endOf > -1) {
+            marked[lineNo] = true
+            marked[endOf] = true
+
+            const lineElem = numbers.children[lineNo]
+
+            const collapser = document.createElement('span')
+
+            // &#x2335; https://www.fileformat.info/info/unicode/char/2335/index.htm
+            collapser.appendChild(document.createTextNode('⌵'))
+
+            collapser.classList.add('collapser')
+
+            lineElem.appendChild(collapser)
+
+            lineElem.classList.add('collapsible')
+
+            lineElem.setAttribute('collapse-to', endOf)
+          }
+        }
+      }
+    }
+
     async function highlightCode () {
-      const source = editor.value.replaceAll('​', '').split('\n')
+      source = editor.value.replaceAll('​', '').split('\n')
 
       lines.innerHTML = ''
 
@@ -143,9 +229,9 @@
 
         lineNumber.appendChild(document.createTextNode(lineNo + 1))
 
-        lines.appendChild(lineNumber)
+        lineNumber.classList.add('line-number')
 
-        // lines.appendChild(document.createElement('br'))
+        lines.appendChild(lineNumber)
       }
 
       // colorized.childNodes.forEach((c) => colorized.removeChild(c))
@@ -154,16 +240,21 @@
 
       colorized.textContent = source.join('\n')
 
-      const highlighter = new Highlighter()
-
       highlighter.highlight(colorized)
+
+      setTimeout(() => {
+        makeCollapsible()
+      })
     }
 
     window.addEventListener('load', () => {
       setTimeout(() => {
-        const text = document.documentElement.outerHTML
+        const initialText = document.documentElement.outerHTML.toString()
 
-        editor.innerHTML = text
+        const injectedStarts = initialText.indexOf('<' + '!-- Code injected by live-server -->')
+        const injectedEnds = initialText.indexOf('<' + '/script>', injectedStarts)
+
+        editor.innerHTML = initialText.substring(0, injectedStarts) + initialText.substring(injectedEnds + 10)
 
         highlightCode()
       }, 0)
@@ -172,6 +263,8 @@
     window.addEventListener('DOMContentLoaded', () => {
       container.addEventListener('scroll', () => {
         numbers.scrollTop = container.scrollTop
+      }, {
+        passive: true
       })
 
       editor.addEventListener('input', () => {
@@ -180,36 +273,78 @@
 
       numbers.addEventListener('scroll', () => {
         container.scrollTop = numbers.scrollTop
+      }, {
+        passive: true
       })
 
       numbers.addEventListener('click', (event) => {
-        const line = event.target.textContent
-        const text = editor.textContent.split('\n')
-        const lineText = text[line - 1]
+        if (event.target.classList.contains('line-number')) {
+          const line = event.target.textContent
+          const text = editor.textContent.split('\n')
+          const lineText = text[line - 1]
 
-        if (line < text.length + 1) {
-          // Idea based on https://dev.to/phuocng/highlight-the-current-line-in-a-text-area-36aj
-          const beforeCaret = text
-            .slice(0, line - 1 > 0 ? line - 1 : 0)
-            .join('\n')
+          if (line < text.length + 1) {
+            // Idea based on https://dev.to/phuocng/highlight-the-current-line-in-a-text-area-36aj
+            const beforeCaret = text
+              .slice(0, line - 1 > 0 ? line - 1 : 0)
+              .join('\n')
 
-          const afterCaret = text
-            .slice(line - 1 > 0 ? line - 1 : 0)
-            .join('\n')
+            const afterCaret = text
+              .slice(line - 1 > 0 ? line - 1 : 0)
+              .join('\n')
 
-          let caretTo = beforeCaret.length
+            let caretTo = beforeCaret.length
 
-          if (line > 1) {
-            caretTo++
+            if (line > 1) {
+              caretTo++
+            }
+
+            editor.selectionStart = caretTo
+            editor.selectionEnd = caretTo + (afterCaret.indexOf('\n') > -1
+              ? afterCaret.indexOf('\n') 
+              : afterCaret.length)
           }
 
-          editor.selectionStart = caretTo
-          editor.selectionEnd = caretTo + (afterCaret.indexOf('\n') > -1
-            ? afterCaret.indexOf('\n') 
-            : afterCaret.length)
-        }
+          editor.focus()
+        } else if (event.target.classList.contains('collapser')) {
+          const lineElem = event.target.parentElement;
 
-        editor.focus()
+          lineElem.classList.toggle('collapsed')
+
+          let mode
+
+          if (lineElem.classList.contains('collapsed')) {
+            event.target.textContent = '>'
+
+            mode = 'none'
+          } else {
+            event.target.textContent = '⌵'
+
+            mode = 'block'
+          }
+
+          const lineNo = parseInt(lineElem.textContent)
+          const collapseToLine = parseInt(lineElem.getAttribute('collapse-to'))
+
+          console.log(`Toggling ${colorized.children[lineNo].textContent.replace('\n', '')} = ${lineElem.classList}`)
+
+          for (let line = lineNo; line < collapseToLine + 1; line++) {
+            const lineElement = colorized.children[line]
+
+            if (line > lineNo && lineElement.classList.contains('collapsed')) {
+              console.log(`Skipping ${colorized.children[line].textContent.replace('\n', '')} = ${lineElement.classList}`)
+
+              line = parseInt(lineElement.getAttribute('collapse-to'))
+            } else {
+              if (line < lineNo + 4) {
+                console.log(`Toggling ${colorized.children[line].textContent.replace('\n', '')} = ${lineElement.classList}`)
+              }
+
+              numbers.children[line].classList.toggle('collapsible-collapsed')
+              colorized.children[line].classList.toggle('collapsible-collapsed')
+            }
+          }
+        }
       })
     })
   </script>
